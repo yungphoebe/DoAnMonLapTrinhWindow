@@ -1,0 +1,260 @@
+# H??NG D?N KI?M TRA K?T N?I DATABASE
+
+## ? ?ã Kh?c Ph?c Hoàn Toàn L?i Hi?n Th? Ti?ng Vi?t
+
+### V?n ?? ?ã ???c gi?i quy?t:
+- ? MessageBox m?c ??nh hi?n th? ký t? "?" thay vì ti?ng Vi?t
+- ? T?o Custom Form v?i font **Segoe UI** h? tr? ti?ng Vi?t hoàn h?o
+- ? Màu s?c ??p m?t, d? ??c
+- ? T? ??ng format và highlight text
+
+## ?? TÍNH N?NG M?I
+
+### Custom Form v?i:
+- ? Font **Segoe UI** - Hi?n th? ti?ng Vi?t ??p nh?t
+- ? Màu s?c phân bi?t: 
+  - ?? Xanh lá: Thành công
+  - ?? ??: L?i
+  - ?? Cam: C?nh báo/?ang x? lý
+  - ?? Xanh d??ng: Tiêu ??
+- ? RichTextBox h? tr? format text ?a d?ng
+- ? Giao di?n hi?n ??i, chuyên nghi?p
+
+## ?? CÁC CÁCH KI?M TRA K?T N?I
+
+### 1. **Custom Form Test (M?c ??nh - Khuy?n ngh?) ?**
+Khi ch?y ?ng d?ng, m?t form ??p m?t s? hi?n th? v?i:
+- ? Font **Segoe UI** - Hi?n th? ti?ng Vi?t hoàn h?o
+- ? Màu s?c phân bi?t cho t?ng lo?i thông tin
+- ? Tr?ng thái k?t n?i real-time
+- ? S? l??ng records trong t?ng b?ng
+- ? Thông báo l?i chi ti?t v?i màu ??
+- ? H??ng d?n kh?c ph?c l?i rõ ràng
+
+**?u ?i?m:**
+- Hi?n th? ti?ng Vi?t hoàn h?o 100% ?
+- Giao di?n ??p, chuyên nghi?p
+- Màu s?c d? nhìn, d? phân bi?t
+- Có th? scroll xem toàn b? thông tin
+
+**Screenshot m?u:**
+```
+???????????????????????????????????????????
+?  KI?M TRA K?T N?I DATABASE            ?  <- Xanh d??ng ??m
+???????????????????????????????????????????
+?                                         ?
+? Server: DESKTOP-LN5QDF6\SQLEXPRESS     ?
+? Database: ToDoListApp                   ?
+?                                         ?
+? ?ang k?t n?i...                        ?  <- Cam
+?                                         ?
+? ? K?T N?I THÀNH CÔNG!                ?  <- Xanh lá ??m
+?                                         ?
+? Server Version: 16.00.1000             ?
+? Database: ToDoListApp                   ?
+?                                         ?
+? ?ang ki?m tra các b?ng...              ?  <- Cam
+?                                         ?
+? ? Users            :     1 b?n ghi    ?  <- Xanh lá
+? ? Tasks            :     1 b?n ghi    ?
+? ? Projects         :     1 b?n ghi    ?
+?                                         ?
+? ? T?NG C?NG: 3 B?N GHI               ?  <- Xanh lá ??m
+?                                         ?
+?           [    OK    ]                  ?  <- Nút xanh
+???????????????????????????????????????????
+```
+
+### 2. **Console Test (Tùy ch?n)**
+N?u mu?n dùng console, ch?nh trong `appsettings.json`:
+
+```json
+{
+  "AppSettings": {
+    "EnableDatabaseTestOnStartup": true,
+    "UseMessageBoxForTest": false  // ??i thành false ?? dùng Console
+  }
+}
+```
+
+**L?u ý:** Console ?ã ???c c?u hình UTF-8 encoding ?? hi?n th? ti?ng Vi?t ?úng, nh?ng không ??p b?ng Custom Form.
+
+### 3. **T?t Test Khi Không C?n**
+Ch?nh trong `appsettings.json`:
+
+```json
+{
+  "AppSettings": {
+    "EnableDatabaseTestOnStartup": false  // ??i thành false
+  }
+}
+```
+
+## ?? C?U HÌNH TRONG APPSETTINGS.JSON
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=DESKTOP-LN5QDF6\\SQLEXPRESS;Database=ToDoListApp;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+  },
+  "AppSettings": {
+    "EnableDatabaseTestOnStartup": true,    // B?t/t?t test khi kh?i ??ng
+    "UseMessageBoxForTest": true            // true = MessageBox, false = Console
+  }
+}
+```
+
+## ?? CÁCH CH?Y
+
+### Visual Studio:
+1. Nh?n **F5** ho?c **Start**
+2. Custom Form ??p m?t s? hi?n ra v?i ti?ng Vi?t hoàn h?o
+3. Xem k?t qu? test v?i màu s?c phân bi?t
+4. Nh?n **OK** ?? m? ?ng d?ng chính
+
+### Command Line:
+```bash
+cd "C:\Users\Phoebe\Desktop\Workspace\winform\ToDoList\ToDoList.GUI"
+dotnet run
+```
+
+## ?? GIAO DI?N M?I
+
+### Màu s?c trong Custom Form:
+- ?? **Xanh d??ng ??m**: Tiêu ??, ???ng k?
+- ?? **Xanh lá**: Thông báo thành công, d? li?u OK
+- ?? **??**: Thông báo l?i
+- ?? **Cam**: ?ang x? lý, c?nh báo
+- ? **?en**: Thông tin bình th??ng
+
+### Font:
+- **Segoe UI 10pt**: N?i dung
+- **Segoe UI 12pt Bold**: Tiêu ??
+- H? tr? ti?ng Vi?t 100% ?
+
+## ?? K?T QU? TEST M?U
+
+### Khi K?t N?i Thành Công:
+```
+================================================
+      KI?M TRA K?T N?I DATABASE
+================================================
+
+Server: DESKTOP-LN5QDF6\SQLEXPRESS
+Database: ToDoListApp
+Authentication: Windows Authentication
+
+?ang k?t n?i...
+
+? K?T N?I THÀNH CÔNG!
+
+Server Version: 15.00.2000
+Database: ToDoListApp
+State: Open
+
+?ang ki?m tra các b?ng...
+
+? Users                :     5 b?n ghi
+? Tasks                :    15 b?n ghi
+? Projects             :     3 b?n ghi
+? Tags                 :     8 b?n ghi
+? FocusSessions        :    12 b?n ghi
+? Reminders            :     6 b?n ghi
+? ActivityLog          :    45 b?n ghi
+? UserSettings         :     5 b?n ghi
+? ProjectMembers       :     7 b?n ghi
+
+================================================
+   ? T?NG C?NG: 106 B?N GHI
+================================================
+```
+
+### Khi Có L?i:
+```
+? L?I K?T N?I SQL SERVER!
+
+Mã l?i: 2
+Thông báo: A network-related or instance-specific error...
+
+?? H??NG D?N KH?C PH?C:
+
+? Không tìm th?y server ho?c không th? truy c?p
+
+Vui lòng ki?m tra:
+? Tên server: DESKTOP-LN5QDF6\SQLEXPRESS
+? SQL Server ?ã ???c kh?i ??ng ch?a?
+? SQL Server Configuration Manager
+? SQL Server Browser service ?ang ch?y
+```
+
+## ?? KH?C PH?C L?I TH??NG G?P
+
+### L?i 1: Không tìm th?y server (Error 2, 53)
+**Nguyên nhân:**
+- SQL Server ch?a kh?i ??ng
+- Tên server không ?úng
+- SQL Server Browser service ch?a ch?y
+
+**Gi?i pháp:**
+1. M? **SQL Server Configuration Manager**
+2. Kh?i ??ng **SQL Server (SQLEXPRESS)**
+3. Kh?i ??ng **SQL Server Browser**
+4. Ki?m tra tên server trong **SQL Server Management Studio**
+
+### L?i 2: Database không t?n t?i (Error 4060)
+**Gi?i pháp:**
+1. T?o database m?i tên `ToDoListApp`
+2. Ho?c ch?y migration:
+```bash
+cd TodoListApp.DAL
+dotnet ef database update
+```
+
+### L?i 3: L?i xác th?c (Error 18456)
+**Gi?i pháp:**
+1. M? **SQL Server Management Studio**
+2. Right-click server ? **Properties**
+3. **Security** ? Ch?n **Windows Authentication mode**
+4. Restart SQL Server
+
+## ?? CÁC FILE LIÊN QUAN
+
+- `ToDoList.GUI/Program.cs` - Entry point v?i test logic
+- `ToDoList.GUI/appsettings.json` - C?u hình
+- `ToDoList.GUI/Tests/DatabaseTestForm.cs` - ? Custom Form v?i font ti?ng Vi?t ??p
+- `ToDoList.GUI/Tests/MessageBoxConnectionTest.cs` - Test b?ng MessageBox (c?)
+- `ToDoList.GUI/Tests/SimpleConnectionTest.cs` - Test b?ng Console
+- `ToDoList.GUI/Tests/ConsoleConnectionTest.cs` - Test async v?i EF Core
+- `ToDoList.GUI/Data/DbContextFactory.cs` - Factory t?o DbContext
+
+## ?? GHI CHÚ
+
+- MessageBox hi?n th? ti?ng Vi?t t?t nh?t
+- Console c?n UTF-8 encoding (?ã ???c c?u hình)
+- Có th? t?t test ?? ?ng d?ng kh?i ??ng nhanh h?n
+- Test ch? ch?y 1 l?n khi kh?i ??ng ?ng d?ng
+
+## ?? K?T LU?N
+
+V?n ?? hi?n th? ti?ng Vi?t ?ã ???c kh?c ph?c hoàn toàn 100% b?ng cách:
+1. ? T?o Custom Form v?i font **Segoe UI** (h? tr? ti?ng Vi?t tuy?t ??i)
+2. ? S? d?ng **RichTextBox** ?? format text v?i màu s?c ??p
+3. ? Không còn ký t? "?" hay l?i font
+4. ? Giao di?n hi?n ??i, chuyên nghi?p
+5. ? D? ??c, d? hi?u v?i màu s?c phân bi?t
+6. ? Cho phép tùy ch?nh qua appsettings.json
+7. ? Hi?n th? thông báo l?i chi ti?t b?ng ti?ng Vi?t
+
+### So sánh:
+
+| Tính n?ng | MessageBox C? | Custom Form M?i |
+|-----------|---------------|-----------------|
+| Ti?ng Vi?t | ? L?i "?" | ? Hoàn h?o |
+| Màu s?c | ? ??n s?c | ? ?a màu ??p |
+| Font | ? M?c ??nh x?u | ? Segoe UI ??p |
+| Scroll | ? Không | ? Có |
+| Tùy ch?nh | ? Không | ? Hoàn toàn |
+
+Gi? b?n có th? **ch?y ?ng d?ng** và th?y k?t qu? test k?t n?i database v?i ti?ng Vi?t hi?n th? hoàn h?o, màu s?c ??p m?t! ???
+
+**Không còn l?i "?" n?a!** ?
