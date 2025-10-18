@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using TodoListApp.DAL.Models;
 using TaskModel = TodoListApp.DAL.Models.Task;
 using Microsoft.EntityFrameworkCore;
+using ToDoList.GUI.Helpers;
 
 namespace ToDoList.GUI.Forms
 {
@@ -66,25 +67,20 @@ namespace ToDoList.GUI.Forms
             {
                 if (_context == null) return;
 
-                // Get or create default user
-                var user = await _context.Users.FirstOrDefaultAsync();
-                if (user == null)
+                // ✅ FIX: Lấy UserId từ UserSession thay vì FirstOrDefaultAsync()
+                _userId = UserSession.GetUserId();
+                
+                if (_userId == 0)
                 {
-                    user = new User
-                    {
-                        FullName = "Default User",
-                        Email = "user@example.com",
-                        PasswordHash = "default",
-                        CreatedAt = DateTime.Now,
-                        IsActive = true
-                    };
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
+                    MessageBox.Show("Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.Close();
+                    return;
                 }
-                _userId = user.UserId;
 
+                // Load tasks CHỈ của project này
                 var tasks = await _context.Tasks
-                    .Where(t => t.ProjectId == _project.ProjectId && t.IsDeleted != true)
+                    .Where(t => t.ProjectId == _project.ProjectId && t.UserId == _userId && t.IsDeleted != true)
                     .OrderBy(t => t.CreatedAt)
                     .ToListAsync();
 
@@ -106,19 +102,24 @@ namespace ToDoList.GUI.Forms
         {
             Panel taskCard = new Panel
             {
-                Width = 700,
+                Width = 750,  // Tăng width để chứa nút mới
                 Height = 60,
                 BackColor = Color.FromArgb(40, 40, 40),
                 BorderStyle = BorderStyle.FixedSingle,
                 Margin = new Padding(5)
             };
 
+            // Thêm hover effect
+            taskCard.MouseEnter += (s, e) => taskCard.BackColor = Color.FromArgb(50, 50, 50);
+            taskCard.MouseLeave += (s, e) => taskCard.BackColor = Color.FromArgb(40, 40, 40);
+
             // Checkbox
             CheckBox chkTask = new CheckBox
             {
                 Location = new Point(15, 20),
                 Size = new Size(20, 20),
-                Checked = task.Status == "Completed"
+                Checked = task.Status == "Completed",
+                Cursor = Cursors.Default
             };
             chkTask.CheckedChanged += (s, e) => ToggleTaskStatus(task, chkTask.Checked);
 
@@ -127,7 +128,7 @@ namespace ToDoList.GUI.Forms
             {
                 Text = task.Title,
                 Location = new Point(50, 15),
-                Size = new Size(300, 25),
+                Size = new Size(250, 25),
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold)
             };
@@ -136,8 +137,8 @@ namespace ToDoList.GUI.Forms
             Label lblPriority = new Label
             {
                 Text = task.Priority ?? "Medium",
-                Location = new Point(370, 15),
-                Size = new Size(80, 25),
+                Location = new Point(320, 15),
+                Size = new Size(70, 25),
                 ForeColor = GetPriorityColor(task.Priority),
                 Font = new Font("Segoe UI", 9F),
                 TextAlign = ContentAlignment.MiddleCenter
@@ -147,7 +148,7 @@ namespace ToDoList.GUI.Forms
             Label lblStatus = new Label
             {
                 Text = task.Status ?? "Pending",
-                Location = new Point(460, 15),
+                Location = new Point(400, 15),
                 Size = new Size(80, 25),
                 ForeColor = GetStatusColor(task.Status),
                 Font = new Font("Segoe UI", 9F),
@@ -158,31 +159,76 @@ namespace ToDoList.GUI.Forms
             Label lblDueDate = new Label
             {
                 Text = task.DueDate?.ToString("dd/MM/yyyy") ?? "Không có",
-                Location = new Point(550, 15),
-                Size = new Size(100, 25),
+                Location = new Point(490, 15),
+                Size = new Size(90, 25),
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 9F),
                 TextAlign = ContentAlignment.MiddleRight
             };
 
-            // Menu button
+            // ✨ NÚT XEM BÁO CÁO - MỚI
+            Button btnReport = new Button
+            {
+                Text = "📊",
+                Location = new Point(590, 15),
+                Size = new Size(35, 30),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(100, 149, 237),
+                Font = new Font("Segoe UI", 14F),
+                Cursor = Cursors.Hand,
+                TabStop = false
+            };
+            btnReport.FlatAppearance.BorderSize = 0;
+            btnReport.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
+            btnReport.Click += (s, e) => ShowTaskReport(task);
+            
+            // Tooltip cho nút báo cáo
+            ToolTip toolTip = new ToolTip();
+            toolTip.SetToolTip(btnReport, "Xem báo cáo chi tiết task");
+
+            // ✏️ NÚT CHỈNH SỬA - MỚI
+            Button btnEdit = new Button
+            {
+                Text = "✏️",
+                Location = new Point(635, 15),
+                Size = new Size(35, 30),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(255, 165, 0),
+                Font = new Font("Segoe UI", 12F),
+                Cursor = Cursors.Hand,
+                TabStop = false
+            };
+            btnEdit.FlatAppearance.BorderSize = 0;
+            btnEdit.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 185, 50);
+            btnEdit.Click += (s, e) => EditTask(task);
+            toolTip.SetToolTip(btnEdit, "Chỉnh sửa task");
+
+            // Menu button (giữ lại cho các tùy chọn khác)
             Button btnMenu = new Button
             {
                 Text = "⋮",
-                Location = new Point(660, 15),
+                Location = new Point(680, 15),
                 Size = new Size(25, 25),
                 FlatStyle = FlatStyle.Flat,
                 ForeColor = Color.Gray,
-                Font = new Font("Segoe UI", 16F)
+                Font = new Font("Segoe UI", 16F),
+                Cursor = Cursors.Hand,
+                TabStop = false
             };
             btnMenu.FlatAppearance.BorderSize = 0;
+            btnMenu.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
             btnMenu.Click += (s, e) => ShowTaskMenu(task, btnMenu);
+            toolTip.SetToolTip(btnMenu, "Thêm tùy chọn");
 
             taskCard.Controls.Add(chkTask);
             taskCard.Controls.Add(lblTitle);
             taskCard.Controls.Add(lblPriority);
             taskCard.Controls.Add(lblStatus);
             taskCard.Controls.Add(lblDueDate);
+            taskCard.Controls.Add(btnReport);  // ✨ THÊM
+            taskCard.Controls.Add(btnEdit);    // ✨ THÊM
             taskCard.Controls.Add(btnMenu);
 
             pnlTasksContainer.Controls.Add(taskCard);
@@ -232,11 +278,44 @@ namespace ToDoList.GUI.Forms
         private void ShowTaskMenu(TaskModel task, Button btnMenu)
         {
             ContextMenuStrip menu = new ContextMenuStrip();
+            menu.BackColor = Color.FromArgb(40, 40, 40);
+            menu.ForeColor = Color.White;
 
-            menu.Items.Add("Chỉnh sửa", null, (s, e) => EditTask(task));
-            menu.Items.Add("Xóa", null, (s, e) => DeleteTask(task));
+            // Đánh dấu hoàn thành/chưa hoàn thành
+            var toggleText = task.Status == "Completed" ? "↩️ Đánh dấu chưa hoàn thành" : "✅ Đánh dấu hoàn thành";
+            var toggleItem = menu.Items.Add(toggleText, null, (s, e) =>
+            {
+                var newStatus = task.Status == "Completed" ? "Pending" : "Completed";
+                ToggleTaskStatus(task, newStatus == "Completed");
+            });
+            toggleItem.BackColor = Color.FromArgb(40, 40, 40);
+            toggleItem.ForeColor = Color.White;
+
+            // Separator
+            menu.Items.Add(new ToolStripSeparator { BackColor = Color.FromArgb(60, 60, 60) });
+
+            // Xóa
+            var deleteItem = menu.Items.Add("🗑️ Xóa task", null, (s, e) => DeleteTask(task));
+            deleteItem.BackColor = Color.FromArgb(40, 40, 40);
+            deleteItem.ForeColor = Color.FromArgb(255, 100, 100);
 
             menu.Show(btnMenu, new Point(0, btnMenu.Height));
+        }
+
+        private void ShowTaskReport(TaskModel task)
+        {
+            try
+            {
+                using (var reportForm = new TaskReportForm(_context, task, _userId))
+                {
+                    reportForm.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi mở báo cáo: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void EditTask(TaskModel task)

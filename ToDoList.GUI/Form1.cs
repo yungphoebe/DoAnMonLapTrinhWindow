@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TodoListApp.DAL.Models;
 using Microsoft.EntityFrameworkCore;
+using ToDoList.GUI.Helpers;
 
 namespace ToDoList.GUI
 {
@@ -11,16 +12,45 @@ namespace ToDoList.GUI
     {
         private ToDoListContext _context;
         private int _userId = 1; // Tạm thời hardcode user ID
+        private Label lblWelcome; // Welcome label
 
         public Form1()
         {
             InitializeComponent();
             InitializeDatabase();
+            UpdateGreetingLabels(); // Update greeting with user name
             LoadProjectsFromDatabase();
             btnCreateNewList.Click += BtnCreateNewList_Click;
             
             // Add test button (for development only)
             AddTestButton();
+        }
+
+        private void UpdateGreetingLabels()
+        {
+            // Update greeting label with user name
+            string timeOfDay = GetTimeOfDay();
+            lblGreeting.Text = $"Chào {timeOfDay}, {UserSession.GetDisplayName()}!";
+            
+            // Update subtitle
+            lblUserName.Text = "Tuyệt vời! Bạn đang làm việc rất chăm chỉ.";
+        }
+
+        private string GetTimeOfDay()
+        {
+            int hour = DateTime.Now.Hour;
+            if (hour < 12)
+                return "buổi sáng";
+            else if (hour < 18)
+                return "buổi chiều";
+            else
+                return "buổi tối";
+        }
+
+        private void AddWelcomeLabel()
+        {
+            // This method is no longer needed as we're using the existing lblGreeting
+            // Keeping it for backwards compatibility but not adding duplicate label
         }
 
         private void AddTestButton()
@@ -61,9 +91,24 @@ namespace ToDoList.GUI
             btnTestData.FlatAppearance.BorderSize = 0;
             btnTestData.Click += BtnTestData_Click;
             
+            Button btnReports = new Button
+            {
+                Text = "📊 Báo cáo",
+                Location = new Point(250, 10),
+                Size = new Size(90, 30),
+                BackColor = Color.FromArgb(100, 149, 237),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+            btnReports.FlatAppearance.BorderSize = 0;
+            btnReports.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
+            btnReports.Click += BtnReports_Click;
+            
             this.Controls.Add(btnTest);
             this.Controls.Add(btnTestDB);
             this.Controls.Add(btnTestData);
+            this.Controls.Add(btnReports);
         }
 
         private void BtnTestDB_Click(object sender, EventArgs e)
@@ -76,6 +121,27 @@ namespace ToDoList.GUI
             Tests.DatabaseConnectionTest.TestConnectionAndCreateSampleData();
             // Reload projects after creating sample data
             LoadProjectsFromDatabase();
+            
+            // Show current data status
+            try
+            {
+                var totalProjects = _context.Projects.Count(p => p.IsArchived != true);
+                var totalTasks = _context.Tasks.Count(t => t.IsDeleted != true);
+                var completedTasks = _context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Completed");
+                
+                MessageBox.Show($"Du lieu hien tai:\n" +
+                    $"- Projects: {totalProjects}\n" +
+                    $"- Tasks: {totalTasks}\n" +
+                    $"- Completed: {completedTasks}\n" +
+                    $"- In Progress: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "In Progress")}\n" +
+                    $"- Pending: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Pending")}", 
+                    "Thong tin du lieu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Loi khi kiem tra du lieu: {ex.Message}", "Loi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void BtnTest_Click(object sender, EventArgs e)
@@ -83,6 +149,208 @@ namespace ToDoList.GUI
             using (var testForm = new Tests.ProjectManagementTestForm())
             {
                 testForm.ShowDialog();
+            }
+        }
+
+        private void BtnReports_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Debug message
+                MessageBox.Show("Opening Reports Form...", "Debug", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                if (_context == null)
+                {
+                    MessageBox.Show("Database context is null. Please restart the application.", "Error", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                using (var reportsForm = new Forms.ReportsForm(_context))
+                {
+                    reportsForm.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening reports: {ex.Message}\n\nStack trace: {ex.StackTrace}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ShowAdvancedStats()
+        {
+            using (var advancedReportsForm = new Forms.AdvancedReportsForm(_context))
+            {
+                advancedReportsForm.ShowDialog();
+            }
+        }
+
+        private void ShowPythonSetupGuide()
+        {
+            var message = "🐍 Python Charts Setup Guide\n\n" +
+                "Step 1: Install Python\n" +
+                "• Download from: https://www.python.org/downloads/\n" +
+                "• ✅ IMPORTANT: Check 'Add Python to PATH' during installation\n\n" +
+                "Step 2: Setup Charts\n" +
+                "• Run: setup_python_integration.bat\n" +
+                "• Or manually copy python_charts folder to build directory\n\n" +
+                "Step 3: Install packages\n" +
+                "• pip install matplotlib seaborn pandas pyodbc plotly\n\n" +
+                "Would you like to open the Python download page?";
+            
+            var result = MessageBox.Show(message, "🐍 Python Setup Guide", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "https://www.python.org/downloads/",
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Cannot open browser: {ex.Message}", "Error", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+        
+        private void GeneratePythonCharts()
+        {
+            try
+            {
+                var pythonScript = Path.Combine(Application.StartupPath, "python_charts", "todolist_charts.py");
+                var pythonFolder = Path.Combine(Application.StartupPath, "python_charts");
+                
+                if (!Directory.Exists(pythonFolder))
+                {
+                    ShowPythonSetupGuide();
+                    return;
+                }
+                
+                if (!File.Exists(pythonScript))
+                {
+                    MessageBox.Show($"Python script not found at:\n{pythonScript}\n\n" +
+                        "Please run setup_python_integration.bat to copy the required files.", 
+                        "Script Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Try different Python commands
+                string[] pythonCommands = { "python", "py", "python3" };
+                string workingPython = null;
+                
+                // Test which Python command works
+                foreach (string cmd in pythonCommands)
+                {
+                    try
+                    {
+                        var testInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = cmd,
+                            Arguments = "--version",
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            CreateNoWindow = true
+                        };
+                        
+                        using (var testProcess = System.Diagnostics.Process.Start(testInfo))
+                        {
+                            testProcess.WaitForExit();
+                            if (testProcess.ExitCode == 0)
+                            {
+                                workingPython = cmd;
+                                break;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+                
+                if (workingPython == null)
+                {
+                    var result = MessageBox.Show(
+                        "❌ Python not found on your system!\n\n" +
+                        "To use Python Charts, you need to:\n" +
+                        "1️⃣ Install Python from python.org\n" +
+                        "2️⃣ ✅ CHECK 'Add Python to PATH' during installation\n" +
+                        "3️⃣ Restart this application\n\n" +
+                        "Would you like to:\n" +
+                        "• YES: Open Python download page\n" +
+                        "• NO: Continue without Python charts",
+                        "Python Required", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    
+                    if (result == DialogResult.Yes)
+                    {
+                        try
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = "https://www.python.org/downloads/",
+                                UseShellExecute = true
+                            });
+                        }
+                        catch { }
+                    }
+                    return;
+                }
+
+                var startInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = workingPython,
+                    Arguments = $"\"{pythonScript}\"",
+                    WorkingDirectory = Path.Combine(Application.StartupPath, "python_charts"),
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                MessageBox.Show("🐍 Generating beautiful Python charts...\nThis may take a few seconds.", 
+                    "Python Charts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                using (var process = System.Diagnostics.Process.Start(startInfo))
+                {
+                    process.WaitForExit();
+                    
+                    var output = process.StandardOutput.ReadToEnd();
+                    var error = process.StandardError.ReadToEnd();
+                    
+                    if (process.ExitCode == 0)
+                    {
+                        var chartsFolder = Path.Combine(Application.StartupPath, "python_charts", "ToDoList_Charts");
+                        
+                        var result = MessageBox.Show($"✅ Charts generated successfully!\n\n" +
+                            $"📁 Location: {chartsFolder}\n\n" +
+                            "Would you like to open the charts folder?", 
+                            "Success", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        
+                        if (result == DialogResult.Yes && Directory.Exists(chartsFolder))
+                        {
+                            System.Diagnostics.Process.Start("explorer.exe", chartsFolder);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"❌ Error generating charts:\n\n{error}\n\nOutput:\n{output}", 
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ Error running Python script:\n\n{ex.Message}\n\n" +
+                    "Make sure Python is installed and accessible from PATH.", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -120,28 +388,20 @@ namespace ToDoList.GUI
                 // Xóa tất cả controls hiện có
                 pnlListsContainer.Controls.Clear();
 
-                // Get or create default user
-                var user = await _context.Users.FirstOrDefaultAsync();
-                if (user == null)
+                // ✅ FIX: Lấy UserId từ UserSession thay vì FirstOrDefaultAsync()
+                _userId = UserSession.GetUserId();
+                
+                if (_userId == 0)
                 {
-                    // Create default user if none exists
-                    user = new User
-                    {
-                        FullName = "Default User",
-                        Email = "user@example.com",
-                        PasswordHash = "default",
-                        CreatedAt = DateTime.Now,
-                        IsActive = true
-                    };
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
+                    MessageBox.Show("Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
-                _userId = user.UserId;
 
-                // Load projects from database
+                // Load projects from database - CHỈ CỦA USER HIỆN TẠI
                 var projects = await _context.Projects
                     .Where(p => p.UserId == _userId && p.IsArchived != true)
-                    .Include(p => p.Tasks)
+                    .Include(p => p.Tasks.Where(t => t.UserId == _userId))  // ✅ Filter tasks theo UserId
                     .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync();
 
@@ -609,6 +869,19 @@ namespace ToDoList.GUI
             // Thêm các menu items
             var editItem = menu.Items.Add("✏️ Chỉnh sửa", null, (s, e) => EditProject(project));
             var viewItem = menu.Items.Add("👁️ Xem chi tiết", null, (s, e) => OpenProjectDetails(project));
+            var statsItem = menu.Items.Add("📊 Thống kê nâng cao", null, (s, e) => ShowAdvancedStats());
+            
+            // Check if Python is available
+            var pythonFolder = Path.Combine(Application.StartupPath, "python_charts");
+            if (Directory.Exists(pythonFolder))
+            {
+                var pythonChartsItem = menu.Items.Add("🐍 Python Charts", null, (s, e) => GeneratePythonCharts());
+            }
+            else
+            {
+                var setupPythonItem = menu.Items.Add("🐍 Setup Python Charts", null, (s, e) => ShowPythonSetupGuide());
+            }
+            
             var archiveItem = menu.Items.Add("📁 Lưu trữ", null, (s, e) => ArchiveProject(project));
             
             // Add separator properly

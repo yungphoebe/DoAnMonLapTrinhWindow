@@ -21,7 +21,7 @@ namespace ToDoList.GUI.Forms
             lblProjectDescription = new Label();
             pnlProjectColor = new Panel();
             btnAddTask = new Button();
-            pnlTasksContainer = new Panel();
+            pnlTasksContainer = new FlowLayoutPanel();  // Changed to FlowLayoutPanel
             btnClose = new Button();
             lblTasksTitle = new Label();
             SuspendLayout();
@@ -75,6 +75,8 @@ namespace ToDoList.GUI.Forms
             // pnlTasksContainer
             // 
             pnlTasksContainer.AutoScroll = true;
+            pnlTasksContainer.FlowDirection = FlowDirection.TopDown;  // Stack vertically
+            pnlTasksContainer.WrapContents = false;  // Don't wrap to next column
             pnlTasksContainer.Location = new Point(27, 277);
             pnlTasksContainer.Margin = new Padding(4, 5, 4, 5);
             pnlTasksContainer.Name = "pnlTasksContainer";
@@ -137,7 +139,7 @@ namespace ToDoList.GUI.Forms
         private System.Windows.Forms.Label lblProjectDescription;
         private System.Windows.Forms.Panel pnlProjectColor;
         private System.Windows.Forms.Button btnAddTask;
-        private System.Windows.Forms.Panel pnlTasksContainer;
+        private System.Windows.Forms.FlowLayoutPanel pnlTasksContainer;  // Changed to FlowLayoutPanel
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Label lblTasksTitle;
     }
