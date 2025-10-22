@@ -10,9 +10,9 @@ namespace ToDoList.GUI
 {
     public partial class Form1 : Form
     {
-        private ToDoListContext _context;
+        private ToDoListContext? _context;
         private int _userId = 1; // Tạm thời hardcode user ID
-        private Label lblWelcome; // Welcome label
+        private bool _justCreatedList = false; // Add this field at class level
 
         public Form1()
         {
@@ -45,12 +45,6 @@ namespace ToDoList.GUI
                 return "buổi chiều";
             else
                 return "buổi tối";
-        }
-
-        private void AddWelcomeLabel()
-        {
-            // This method is no longer needed as we're using the existing lblGreeting
-            // Keeping it for backwards compatibility but not adding duplicate label
         }
 
         private void AddTestButton()
@@ -111,40 +105,7 @@ namespace ToDoList.GUI
             this.Controls.Add(btnReports);
         }
 
-        private void BtnTestDB_Click(object sender, EventArgs e)
-        {
-            Tests.SimpleDatabaseTest.TestDatabaseConnection();
-        }
-
-        private void BtnTestData_Click(object sender, EventArgs e)
-        {
-            Tests.DatabaseConnectionTest.TestConnectionAndCreateSampleData();
-            // Reload projects after creating sample data
-            LoadProjectsFromDatabase();
-            
-            // Show current data status
-            try
-            {
-                var totalProjects = _context.Projects.Count(p => p.IsArchived != true);
-                var totalTasks = _context.Tasks.Count(t => t.IsDeleted != true);
-                var completedTasks = _context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Completed");
-                
-                MessageBox.Show($"Du lieu hien tai:\n" +
-                    $"- Projects: {totalProjects}\n" +
-                    $"- Tasks: {totalTasks}\n" +
-                    $"- Completed: {completedTasks}\n" +
-                    $"- In Progress: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "In Progress")}\n" +
-                    $"- Pending: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Pending")}", 
-                    "Thong tin du lieu", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Loi khi kiem tra du lieu: {ex.Message}", "Loi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void BtnTest_Click(object sender, EventArgs e)
+        private void BtnTest_Click(object? sender, EventArgs e)
         {
             using (var testForm = new Tests.ProjectManagementTestForm())
             {
@@ -152,17 +113,51 @@ namespace ToDoList.GUI
             }
         }
 
-        private void BtnReports_Click(object sender, EventArgs e)
+        private void BtnTestDB_Click(object? sender, EventArgs e)
+        {
+            Tests.SimpleDatabaseTest.TestDatabaseConnection();
+        }
+
+        private void BtnTestData_Click(object? sender, EventArgs e)
+        {
+            Tests.DatabaseConnectionTest.TestConnectionAndCreateSampleData();
+            LoadProjectsFromDatabase();
+
+            if (_context == null)
+            {
+                MessageBox.Show("Không thể truy cập dữ liệu vì database chưa được khởi tạo.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                var totalProjects = _context.Projects.Count(p => p.IsArchived != true);
+                var totalTasks = _context.Tasks.Count(t => t.IsDeleted != true);
+                var completedTasks = _context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Completed");
+
+                MessageBox.Show($"Dữ liệu hiện tại:\n" +
+                    $"- Projects: {totalProjects}\n" +
+                    $"- Tasks: {totalTasks}\n" +
+                    $"- Completed: {completedTasks}\n" +
+                    $"- In Progress: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "In Progress")}\n" +
+                    $"- Pending: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Pending")}", 
+                    "Thông tin dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi kiểm tra dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnReports_Click(object? sender, EventArgs e)
         {
             try
             {
-                // Debug message
-                MessageBox.Show("Opening Reports Form...", "Debug", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
+                MessageBox.Show("Đang mở form báo cáo...", "Debug", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 if (_context == null)
                 {
-                    MessageBox.Show("Database context is null. Please restart the application.", "Error", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Database context bị null. Vui lòng khởi động lại ứng dụng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -173,16 +168,30 @@ namespace ToDoList.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error opening reports: {ex.Message}\n\nStack trace: {ex.StackTrace}", "Error", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi mở báo cáo: {ex.Message}\n\nStack trace: {ex.StackTrace}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void ShowAdvancedStats()
         {
-            using (var advancedReportsForm = new Forms.AdvancedReportsForm(_context))
+            if (_context == null)
             {
-                advancedReportsForm.ShowDialog();
+                MessageBox.Show("Không thể mở thống kê nâng cao vì database chưa được khởi tạo.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            
+            // ✅ Now using the new AdvancedReportsForm
+            try
+            {
+                using (var advancedReportsForm = new Forms.AdvancedReportsForm(_context))
+                {
+                    advancedReportsForm.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi mở thống kê nâng cao: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -243,7 +252,7 @@ namespace ToDoList.GUI
 
                 // Try different Python commands
                 string[] pythonCommands = { "python", "py", "python3" };
-                string workingPython = null;
+                string? workingPython = null;
                 
                 // Test which Python command works
                 foreach (string cmd in pythonCommands)
@@ -262,11 +271,14 @@ namespace ToDoList.GUI
                         
                         using (var testProcess = System.Diagnostics.Process.Start(testInfo))
                         {
-                            testProcess.WaitForExit();
-                            if (testProcess.ExitCode == 0)
+                            if (testProcess != null)
                             {
-                                workingPython = cmd;
-                                break;
+                                testProcess.WaitForExit();
+                                if (testProcess.ExitCode == 0)
+                                {
+                                    workingPython = cmd;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -320,29 +332,32 @@ namespace ToDoList.GUI
 
                 using (var process = System.Diagnostics.Process.Start(startInfo))
                 {
-                    process.WaitForExit();
-                    
-                    var output = process.StandardOutput.ReadToEnd();
-                    var error = process.StandardError.ReadToEnd();
-                    
-                    if (process.ExitCode == 0)
+                    if (process != null)
                     {
-                        var chartsFolder = Path.Combine(Application.StartupPath, "python_charts", "ToDoList_Charts");
+                        process.WaitForExit();
                         
-                        var result = MessageBox.Show($"✅ Charts generated successfully!\n\n" +
-                            $"📁 Location: {chartsFolder}\n\n" +
-                            "Would you like to open the charts folder?", 
-                            "Success", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        var output = process.StandardOutput.ReadToEnd();
+                        var error = process.StandardError.ReadToEnd();
                         
-                        if (result == DialogResult.Yes && Directory.Exists(chartsFolder))
+                        if (process.ExitCode == 0)
                         {
-                            System.Diagnostics.Process.Start("explorer.exe", chartsFolder);
+                            var chartsFolder = Path.Combine(Application.StartupPath, "python_charts", "ToDoList_Charts");
+                            
+                            var result = MessageBox.Show($"✅ Charts generated successfully!\n\n" +
+                                $"📁 Location: {chartsFolder}\n\n" +
+                                "Would you like to open the charts folder?", 
+                                "Success", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                            
+                            if (result == DialogResult.Yes && Directory.Exists(chartsFolder))
+                            {
+                                System.Diagnostics.Process.Start("explorer.exe", chartsFolder);
+                            }
                         }
-                    }
-                    else
-                    {
-                        MessageBox.Show($"❌ Error generating charts:\n\n{error}\n\nOutput:\n{output}", 
-                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        else
+                        {
+                            MessageBox.Show($"❌ Error generating charts:\n\n{error}\n\nOutput:\n{output}", 
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
             }
@@ -367,13 +382,13 @@ namespace ToDoList.GUI
             }
         }
 
-        private void BtnCreateNewList_Click(object sender, EventArgs e)
+        private void BtnCreateNewList_Click(object? sender, EventArgs e)
         {
             using (CreateListForm createListForm = new CreateListForm())
             {
                 if (createListForm.ShowDialog() == DialogResult.OK)
                 {
-                    // Reload projects from database after creating new one
+                    _justCreatedList = true; // Set flag when list is created
                     LoadProjectsFromDatabase();
                 }
             }
@@ -398,11 +413,15 @@ namespace ToDoList.GUI
                     return;
                 }
 
+                // ✅ FIX: Set command timeout to prevent timeout errors
+                _context.Database.SetCommandTimeout(60); // 60 seconds timeout
+
                 // Load projects from database - CHỈ CỦA USER HIỆN TẠI
                 var projects = await _context.Projects
                     .Where(p => p.UserId == _userId && p.IsArchived != true)
-                    .Include(p => p.Tasks.Where(t => t.UserId == _userId))  // ✅ Filter tasks theo UserId
+                    .Include(p => p.Tasks.Where(t => t.UserId == _userId && t.IsDeleted != true))  // ✅ Filter tasks
                     .OrderByDescending(p => p.CreatedAt)
+                    .AsNoTracking() // ✅ Improve performance by not tracking entities
                     .ToListAsync();
 
                 // Add project cards
@@ -423,20 +442,21 @@ namespace ToDoList.GUI
                 // Luôn thêm card tạo danh sách mới ở cuối
                 AddCreateListCard();
             }
+            catch (Microsoft.Data.SqlClient.SqlException sqlEx) when (sqlEx.Number == -2) // Timeout error
+            {
+                MessageBox.Show("Kết nối cơ sở dữ liệu bị timeout. Vui lòng thử lại.\n\n" +
+                    "Nếu lỗi vẫn tiếp tục, hãy kiểm tra:\n" +
+                    "- Kết nối mạng\n" +
+                    "- SQL Server có đang chạy không\n" +
+                    "- Connection string trong appsettings.json", 
+                    "Lỗi Timeout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi tải danh sách: {ex.Message}", "Lỗi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi tải danh sách: {ex.Message}\n\n" +
+                    $"Chi tiết: {ex.InnerException?.Message}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void LoadSampleData()
-        {
-            // Xóa tất cả controls hiện có
-            pnlListsContainer.Controls.Clear();
-
-            // Luôn thêm card tạo danh sách mới ở cuối
-            AddCreateListCard();
         }
 
         private void AddProjectCard(Project project, int pendingTasks, int estimatedMinutes, List<(string name, string time)> tasks)
@@ -444,7 +464,7 @@ namespace ToDoList.GUI
             Panel listCard = new Panel
             {
                 Width = 320,
-                Height = 430,
+                Height = 480, // Increased height to accommodate button
                 BackColor = Color.FromArgb(35, 35, 35),
                 BorderStyle = BorderStyle.None,
                 Margin = new Padding(12),
@@ -606,15 +626,15 @@ namespace ToDoList.GUI
                 taskY += 65;
                 taskIndex++;
 
-                // Limit to 4 tasks to avoid overflow
-                if (taskIndex > 4) break;
+                // Limit to 3 tasks to make room for button
+                if (taskIndex > 3) break;
             }
 
             // Footer info - improved positioning
             Label lblPendingTasks = new Label
             {
                 Text = $"{pendingTasks} công việc đang chờ",
-                Location = new Point(20, 390),
+                Location = new Point(20, 340),
                 Size = new Size(160, 20),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 Font = new Font("Segoe UI", 9F),
@@ -624,7 +644,7 @@ namespace ToDoList.GUI
             Label lblEstTime = new Label
             {
                 Text = $"Dự kiến: {estimatedMinutes}ph",
-                Location = new Point(200, 390),
+                Location = new Point(200, 340),
                 Size = new Size(100, 20),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 Font = new Font("Segoe UI", 9F),
@@ -632,13 +652,47 @@ namespace ToDoList.GUI
                 BackColor = Color.Transparent
             };
 
+            // ✨ Add "Cuculist Now" button
+            Button btnCuculist = new Button
+            {
+                Text = "Cuculist Now",
+                Location = new Point(60, 380),
+                Size = new Size(200, 45),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(100, 149, 237),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnCuculist.FlatAppearance.BorderSize = 0;
+            btnCuculist.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
+            btnCuculist.Click += (s, e) => {
+                // Open Cuculist Detail Form (full view with tasks list)
+                using (var cuculistForm = new Forms.CuculistDetailForm(project))
+                {
+                    cuculistForm.ShowDialog();
+                    // Reload after closing to update any completed tasks
+                    LoadProjectsFromDatabase();
+                }
+            };
+
             listCard.Controls.Add(lblPendingTasks);
             listCard.Controls.Add(lblEstTime);
+            listCard.Controls.Add(btnCuculist);
 
-            // Add click event to open project details
-            listCard.Click += (s, e) => OpenProjectDetails(project);
+            // Don't add click event to card itself to avoid conflict with button
+            // listCard.Click += (s, e) => OpenProjectDetails(project);
 
             pnlListsContainer.Controls.Add(listCard);
+        }
+
+        private void LoadSampleData()
+        {
+            // Xóa tất cả controls hiện có
+            pnlListsContainer.Controls.Clear();
+
+            // Luôn thêm card tạo danh sách mới ở cuối
+            AddCreateListCard();
         }
 
         private void AddListCard(string listName, int pendingTasks, int estimatedMinutes, List<(string name, string time)> tasks)
@@ -806,23 +860,45 @@ namespace ToDoList.GUI
                 BackColor = Color.Transparent
             };
 
+            // Only add Cuculist Now button if list was just created
+            if (_justCreatedList)
+            {
+                Button btnCuculist = new Button
+                {
+                    Text = "Cuculist Now",
+                    Location = new Point(60, 300),
+                    Size = new Size(200, 40),
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.FromArgb(100, 149, 237),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                    Cursor = Cursors.Hand
+                };
+                btnCuculist.FlatAppearance.BorderSize = 0;
+                btnCuculist.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
+                btnCuculist.Click += BtnCreateNewList_Click;
+                createCard.Controls.Add(btnCuculist);
+            }
+
             bool isHovering = false;
 
             createCard.Paint += (s, e) =>
             {
-                Panel panel = s as Panel;
-                Color borderColor = isHovering ? Color.FromArgb(100, 149, 237) : Color.FromArgb(60, 60, 60);
-                
-                // Draw dashed border
-                using (var pen = new Pen(borderColor, 2))
+                if (s is Panel panel)
                 {
-                    pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
-                    e.Graphics.DrawRectangle(pen, 1, 1, panel.Width - 3, panel.Height - 3);
+                    Color borderColor = isHovering ? Color.FromArgb(100, 149, 237) : Color.FromArgb(60, 60, 60);
+                    
+                    // Draw dashed border
+                    using (var pen = new Pen(borderColor, 2))
+                    {
+                        pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+                        e.Graphics.DrawRectangle(pen, 1, 1, panel.Width - 3, panel.Height - 3);
+                    }
                 }
             };
 
             // Event handlers for hover effect
-            Action<object, EventArgs> mouseEnter = (s, e) =>
+            EventHandler mouseEnter = (s, e) =>
             {
                 isHovering = true;
                 createCard.BackColor = Color.FromArgb(30, 30, 30);
@@ -831,7 +907,7 @@ namespace ToDoList.GUI
                 createCard.Invalidate(); // Redraw the panel
             };
 
-            Action<object, EventArgs> mouseLeave = (s, e) =>
+            EventHandler mouseLeave = (s, e) =>
             {
                 isHovering = false;
                 createCard.BackColor = Color.FromArgb(25, 25, 25);
@@ -840,13 +916,13 @@ namespace ToDoList.GUI
                 createCard.Invalidate(); // Redraw the panel
             };
 
-            createCard.MouseEnter += new EventHandler(mouseEnter);
-            lblPlus.MouseEnter += new EventHandler(mouseEnter);
-            lblCreate.MouseEnter += new EventHandler(mouseEnter);
+            createCard.MouseEnter += mouseEnter;
+            lblPlus.MouseEnter += mouseEnter;
+            lblCreate.MouseEnter += mouseEnter;
 
-            createCard.MouseLeave += new EventHandler(mouseLeave);
-            lblPlus.MouseLeave += new EventHandler(mouseLeave);
-            lblCreate.MouseLeave += new EventHandler(mouseLeave);
+            createCard.MouseLeave += mouseLeave;
+            lblPlus.MouseLeave += mouseLeave;
+            lblCreate.MouseLeave += mouseLeave;
 
             createCard.Click += BtnCreateNewList_Click;
             lblPlus.Click += BtnCreateNewList_Click;

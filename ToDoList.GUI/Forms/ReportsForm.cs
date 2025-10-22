@@ -246,10 +246,10 @@ namespace ToDoList.GUI.Forms
 
             this.Controls.Add(datePanel);
 
-            // Event handlers
-            dtpStartDate.ValueChanged += (s, e) => LoadReportData();
-            dtpEndDate.ValueChanged += (s, e) => LoadReportData();
-            cmbProjects.SelectedIndexChanged += (s, e) => LoadReportData();
+            // Event handlers - use async handlers
+            dtpStartDate.ValueChanged += async (s, e) => await LoadReportData();
+            dtpEndDate.ValueChanged += async (s, e) => await LoadReportData();
+            cmbProjects.SelectedIndexChanged += async (s, e) => await LoadReportData();
         }
 
         private void CreateStatsCards()
@@ -312,7 +312,7 @@ namespace ToDoList.GUI.Forms
                 MessageBox.Show($"Da tai {projects.Count()} du an. Dang tai bao cao...", "Thong tin", 
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Load initial report data
+                // Load initial report data with await
                 await LoadReportData();
             }
             catch (Exception ex)
@@ -322,9 +322,9 @@ namespace ToDoList.GUI.Forms
             }
         }
 
-        private void BtnUpdate_Click(object sender, EventArgs e)
+        private async void BtnUpdate_Click(object sender, EventArgs e)
         {
-            LoadReportData();
+            await LoadReportData();
         }
 
         private async System.Threading.Tasks.Task LoadReportData()
@@ -550,8 +550,8 @@ namespace ToDoList.GUI.Forms
             {
                 Text = value,
                 Location = new Point(15, 35),
-                Size = new Size(200, 35),
-                Font = new Font("Segoe UI", 24F, FontStyle.Bold),
+                Size = new Size(250, 38),  // ? T?ng height t? 35 lên 38 ?? ?? ch?
+                Font = new Font("Segoe UI", 20F, FontStyle.Bold),  // ? Gi?m size t? 24F xu?ng 20F
                 ForeColor = Color.White,
                 BackColor = Color.Transparent
             };
@@ -564,8 +564,8 @@ namespace ToDoList.GUI.Forms
                 var lblSubValue = new Label
                 {
                     Text = subValue,
-                    Location = new Point(15, 70),
-                    Size = new Size(200, 20),
+                    Location = new Point(15, 73),  // ? ?i?u ch?nh Y position t? 70 lên 73
+                    Size = new Size(250, 20),  // ? T?ng width t? 200 lên 250
                     Font = new Font("Segoe UI", 9F),
                     ForeColor = Color.FromArgb(150, 150, 150),
                     BackColor = Color.Transparent

@@ -1,0 +1,23 @@
+H??NG D?N S?A FORMAT TH?I GIAN
+
+V?n ??: Th?i gian hi?n th? thi?u ch? s? 0 (ví d?: 0:0:3 thay vì 00:00:03)
+
+File c?n s?a: ToDoList.GUI/Forms/CuculistDetailForm.cs
+
+Tìm dòng:
+    Text = task == _activeTask && _isTimerRunning ? _elapsedTime.ToString(@"hh\:mm\:ss") : "PAUSED",
+
+Thay th? b?ng:
+    Text = task == _activeTask && _isTimerRunning ? _elapsedTime.ToString(@"HH\:mm\:ss") : "PAUSED",
+
+Ho?c thay th? b?ng (cách 2 - format th? công ?? ??m b?o):
+    Text = task == _activeTask && _isTimerRunning ? 
+        string.Format("{0:00}:{1:00}:{2:00}", (int)_elapsedTime.TotalHours, _elapsedTime.Minutes, _elapsedTime.Seconds) : 
+        "PAUSED",
+
+Gi?i thích:
+- "hh" = gi? 12h format (00-12) - SAI
+- "HH" = gi? 24h format (00-23) - ?ÚNG
+- string.Format("{0:00}") = luôn hi?n th? 2 ch? s? v?i s? 0 ??u
+
+K?t qu?: 00:00:03 thay vì 0:0:3

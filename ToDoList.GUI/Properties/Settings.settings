@@ -1,8 +1,6 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ToDoList.GUI.Properties" GeneratedClassName="Settings">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ToDoListApp.GUI.Properties" GeneratedClassName="Settings">
+  <Profiles />
   <Settings>
     <Setting Name="Language" Type="System.String" Scope="User">
       <Value Profile="(Default)">Vietnamese</Value>

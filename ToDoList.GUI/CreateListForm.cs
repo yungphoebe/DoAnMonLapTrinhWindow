@@ -15,7 +15,7 @@ namespace ToDoList.GUI
     public partial class CreateListForm : Form
     {
         private Color selectedColor = Color.FromArgb(204, 180, 72);
-        private ToDoListContext _context;
+        private ToDoListContext? _context;
         private int _userId = 1; // Tạm thời hardcode user ID, sau này sẽ lấy từ session
 
         public CreateListForm()

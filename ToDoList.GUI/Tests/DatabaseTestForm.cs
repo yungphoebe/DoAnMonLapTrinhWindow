@@ -1,5 +1,5 @@
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 using ToDoList.GUI.Resources;
@@ -8,9 +8,9 @@ namespace ToDoList.GUI.Tests
 {
     public class DatabaseTestForm : Form
     {
-        private RichTextBox txtResult;
-        private Button btnOK;
-        private Label lblTitle;
+        private RichTextBox? txtResult;
+        private Button? btnOK;
+        private Label? lblTitle;
         
         public DatabaseTestForm()
         {
@@ -80,7 +80,7 @@ namespace ToDoList.GUI.Tests
         
         private void RunTest()
         {
-            string connectionString = "Server=DESKTOP-LN5QDF6\\SQLEXPRESS;Database=ToDoListApp;Integrated Security=True;TrustServerCertificate=True";
+            string connectionString = "Server=LAPTOP-3S8I2CEO;Database=ToDoListApp;Integrated Security=True;TrustServerCertificate=True";
             
             AppendText("================================================\n", Color.DarkBlue, true);
             AppendText($"      {Strings.DbConnectionTitle.ToUpper()}\n", Color.DarkBlue, true);
@@ -123,7 +123,7 @@ namespace ToDoList.GUI.Tests
                                 totalRecords += count;
                             }
                         }
-                        catch (Exception ex)
+                        catch
                         {
                             AppendText($"? {table,-20} : {Strings.Error}\n", Color.Red);
                         }
@@ -136,7 +136,7 @@ namespace ToDoList.GUI.Tests
             }
             catch (SqlException ex)
             {
-                txtResult.Clear();
+                txtResult!.Clear();
                 AppendText($"? {Strings.DbErrorTitle}!\n\n", Color.Red, true);
                 
                 AppendText($"{Strings.DbErrorCode}: {ex.Number}\n", Color.DarkRed);
@@ -150,7 +150,7 @@ namespace ToDoList.GUI.Tests
                     case 53:
                         AppendText($"? {Strings.DbServerNotFound}\n\n", Color.Red, true);
                         AppendText("Vui lòng ki?m tra:\n", Color.Black);
-                        AppendText("? Tên server: DESKTOP-LN5QDF6\\SQLEXPRESS\n", Color.Black);
+                        AppendText("? Tên server: LAPTOP-3S8I2CEO\n", Color.Black);
                         AppendText("? SQL Server ?ã ???c kh?i ??ng ch?a?\n", Color.Black);
                         AppendText("? SQL Server Configuration Manager\n", Color.Black);
                         AppendText("? SQL Server Browser service ?ang ch?y\n", Color.Black);
@@ -175,7 +175,7 @@ namespace ToDoList.GUI.Tests
             }
             catch (Exception ex)
             {
-                txtResult.Clear();
+                txtResult!.Clear();
                 AppendText($"? {Strings.Error}:\n\n", Color.Red, true);
                 AppendText(ex.Message, Color.DarkRed);
             }
@@ -183,7 +183,7 @@ namespace ToDoList.GUI.Tests
         
         private void AppendText(string text, Color color, bool bold = false)
         {
-            int start = txtResult.TextLength;
+            int start = txtResult!.TextLength;
             txtResult.AppendText(text);
             int end = txtResult.TextLength;
             

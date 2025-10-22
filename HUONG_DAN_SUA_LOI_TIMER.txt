@@ -1,0 +1,58 @@
+=====================================================
+  H??NG D?N S?A L?I FORMAT TH?I GIAN
+=====================================================
+
+V?N ??:
+-------
+Th?i gian hi?n th? thi?u s? 0 ??u tiên
+Ví d?: 0:0:3 thay vì 00:00:03
+
+NGUYÊN NHÂN:
+------------
+Format string s? d?ng "hh:mm:ss" (12-hour format)
+thay vì "HH:mm:ss" (24-hour format with leading zeros)
+
+FILE C?N S?A:
+-------------
+ToDoList.GUI/Forms/CuculistDetailForm.cs
+
+TÌM DÒNG CODE SAI (kho?ng dòng 180-200):
+----------------------------------------
+Text = task == _activeTask && _isTimerRunning ? _elapsedTime.ToString(@"hh\:mm\:ss") : "PAUSED",
+
+THAY B?NG (CÁCH 1 - ??N GI?N):
+-------------------------------
+Text = task == _activeTask && _isTimerRunning ? _elapsedTime.ToString(@"HH\:mm\:ss") : "PAUSED",
+
+HO?C CÁCH 2 (CH?C CH?N H?N):
+------------------------------
+Text = task == _activeTask && _isTimerRunning ? 
+    string.Format("{0:00}:{1:00}:{2:00}", 
+        (int)_elapsedTime.TotalHours, 
+        _elapsedTime.Minutes, 
+        _elapsedTime.Seconds) : 
+    "PAUSED",
+
+CHI TI?T:
+---------
+- "hh" = hour in 12-hour format (0-12)  -> SAI
+- "HH" = hour in 24-hour format (00-23) -> ?ÚNG
+- "{0:00}" = always shows 2 digits with leading zero
+
+K?T QU? SAU KHI S?A:
+---------------------
+00:00:03 ? (?úng)
+00:01:25 ? (?úng)
+01:30:45 ? (?úng)
+
+=====================================================
+
+CÁCH S?A:
+1. M? file: ToDoList.GUI/Forms/CuculistDetailForm.cs
+2. Tìm ki?m (Ctrl+F): _elapsedTime.ToString(@"hh
+3. Thay "hh" thành "HH"
+4. Save file
+5. Rebuild solution (Ctrl+Shift+B)
+6. Ch?y l?i ?ng d?ng
+
+=====================================================

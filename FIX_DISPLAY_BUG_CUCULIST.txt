@@ -1,0 +1,190 @@
+=====================================================
+  H??NG D?N S?A L?I HI?N TH? TEXT & TIMER
+  (Fix for: "Mark me as done" and "00:00:1" display bug)
+=====================================================
+
+V?N ??:
+-------
+1. Text "Mark me as done" b? m?t ch?
+2. Th?i gian "00:00:1" ch? hi?n th? 1 ch? s? thay vì 2 ch? s? "00:00:01"
+
+NGUYÊN NHÂN:
+------------
+1. Button quá r?ng (180px) ? Không ?? ch? cho Label timer
+2. Format th?i gian dùng "hh" (12-hour) ? Thi?u s? 0 ??u
+
+FILE C?N S?A:
+-------------
+ToDoList.GUI/Forms/CuculistDetailForm.cs
+
+?? TÌM ?O?N CODE NÀY (kho?ng dòng 285-320):
+============================================
+
+if (task.Status != "Completed")
+{
+    // "Mark me as done" button with timer
+    Button btnMarkDone = new Button
+    {
+        Text = "Mark me as done",
+        Location = new Point(15, 15),
+        Size = new Size(180, 30),          // ? QUÁ R?NG!
+        FlatStyle = FlatStyle.Flat,
+        ForeColor = Color.Black,
+        BackColor = Color.Transparent,
+        Font = new Font("Segoe UI", 12F),  // ? QUÁ L?N!
+        Cursor = Cursors.Hand,
+        TextAlign = ContentAlignment.MiddleLeft
+    };
+    
+    // Timer/Status label
+    Label lblStatus = new Label
+    {
+        Text = task == _activeTask && _isTimerRunning ? 
+            _elapsedTime.ToString(@"hh\:mm\:ss") : "PAUSED",  // ? SAI FORMAT!
+        Location = new Point(200, 15),
+        Size = new Size(120, 30),
+        Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+        ...
+    };
+}
+
+
+? THAY B?NG CODE NÀY:
+======================
+
+if (task.Status != "Completed")
+{
+    // "Mark me as done" button - FIXED SIZE
+    Button btnMarkDone = new Button
+    {
+        Text = "Mark me as done",
+        Location = new Point(15, 15),
+        Size = new Size(150, 30),          // ? GI?M: 180 ? 150
+        FlatStyle = FlatStyle.Flat,
+        ForeColor = Color.Black,
+        BackColor = Color.Transparent,
+        Font = new Font("Segoe UI", 10F),  // ? GI?M: 12F ? 10F
+        Cursor = Cursors.Hand,
+        TextAlign = ContentAlignment.MiddleLeft
+    };
+    btnMarkDone.FlatAppearance.BorderSize = 0;
+    btnMarkDone.Click += async (s, e) => await MarkTaskCompleted(task);
+    
+    // Timer/Status label - FIXED FORMAT & POSITION
+    Label lblStatus = new Label
+    {
+        Text = task == _activeTask && _isTimerRunning ? 
+            string.Format("{0:00}:{1:00}:{2:00}",              // ? FIXED FORMAT!
+                (int)_elapsedTime.TotalHours, 
+                _elapsedTime.Minutes, 
+                _elapsedTime.Seconds) : 
+            "PAUSED",
+        Location = new Point(170, 15),     // ? D?CH TRÁI: 200 ? 170
+        Size = new Size(150, 30),          // ? T?NG: 120 ? 150
+        Font = new Font("Segoe UI", 13F, FontStyle.Bold),  // ? GI?M: 14F ? 13F
+        ForeColor = Color.Black,
+        BackColor = Color.Transparent,
+        TextAlign = ContentAlignment.MiddleRight
+    };
+    
+    // Task details (second row)
+    Label lblTime = new Label
+    {
+        Text = $"{task.EstimatedMinutes ?? 0}min",
+        Location = new Point(15, 55),
+        Size = new Size(100, 20),
+        Font = new Font("Segoe UI", 9F),
+        ForeColor = Color.Gray,
+        BackColor = Color.Transparent
+    };
+    
+    Label lblActualTime = new Label
+    {
+        Text = $"{task.ActualMinutes ?? 0}min",
+        Location = new Point(220, 55),
+        Size = new Size(100, 20),
+        Font = new Font("Segoe UI", 9F),
+        ForeColor = Color.Gray,
+        BackColor = Color.Transparent,
+        TextAlign = ContentAlignment.MiddleRight
+    };
+    
+    taskCard.Controls.Add(btnMarkDone);
+    taskCard.Controls.Add(lblStatus);
+    taskCard.Controls.Add(lblTime);
+    taskCard.Controls.Add(lblActualTime);
+}
+
+
+=====================================================
+B?NG SO SÁNH THAY ??I:
+=====================================================
+
+| Thu?c tính            | C? (L?i)  | M?I (Fix)  | Lý do                    |
+|-----------------------|-----------|-----------|--------------------------|
+| btnMarkDone.Size      | 180x30    | 150x30    | Gi?m width ?? có ch?     |
+| btnMarkDone.Font      | 12F       | 10F       | Gi?m font ?? v?a text    |
+| lblStatus.Location.X  | 200       | 170       | D?ch trái g?n button     |
+| lblStatus.Size        | 120x30    | 150x30    | T?ng width cho timer     |
+| lblStatus.Font        | 14F       | 13F       | V?a ??, không quá l?n    |
+| lblStatus.Text format | hh:mm:ss  | 00:00:00  | Luôn có 2 ch? s?         |
+
+=====================================================
+CÁCH S?A NHANH:
+=====================================================
+
+1. M? file: ToDoList.GUI/Forms/CuculistDetailForm.cs
+
+2. Nh?n Ctrl + F ? Tìm: "Size = new Size(180, 30)"
+
+3. Thay ??i 3 giá tr? sau:
+   - Size = new Size(180, 30)  ?  new Size(150, 30)
+   - Font = new Font("Segoe UI", 12F)  ?  10F
+   - _elapsedTime.ToString(@"hh\:mm\:ss")  
+     ? xóa dòng này, thay b?ng:
+     string.Format("{0:00}:{1:00}:{2:00}", 
+         (int)_elapsedTime.TotalHours, 
+         _elapsedTime.Minutes, 
+         _elapsedTime.Seconds)
+
+4. Tìm: Location = new Point(200, 15)
+   ? Thay: new Point(170, 15)
+
+5. Tìm: Size = new Size(120, 30) (? lblStatus)
+   ? Thay: new Size(150, 30)
+
+6. Save (Ctrl + S)
+
+7. Build (Ctrl + Shift + B)
+
+8. Ch?y l?i ?ng d?ng
+
+=====================================================
+K?T QU? SAU KHI S?A:
+=====================================================
+
+TR??C:
+????????????????????????????????????????
+? Mark me as done            00:00:1   ?  ? Thi?u s? 0
+????????????????????????????????????????
+
+SAU:
+????????????????????????????????????????
+? Mark me as done        00:00:01      ?  ? ??y ??!
+????????????????????????????????????????
+
+=====================================================
+L?U Ý:
+=====================================================
+
+?? N?u v?n còn l?i, ki?m tra:
+   1. TaskCard.Width = 340px (?? r?ng)
+   2. Không có control nào khác che m?t
+   3. Font "Segoe UI" ?ã cài ??t trên h? th?ng
+
+?? Gi?i thích:
+   - Button r?ng 150px + Label r?ng 150px = 300px
+   - Còn d? 40px cho padding (15px trái + 20px ph?i)
+   - Format "{0:00}" luôn hi?n th? 2 ch? s? v?i s? 0 ??u
+
+=====================================================

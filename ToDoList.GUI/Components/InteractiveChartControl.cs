@@ -128,12 +128,22 @@ namespace ToDoList.GUI.Components
                 float spacing = chartArea.Width / _data.Count * 0.2f;
                 float maxValue = (float)_data.Max(d => d.Value);
 
+                // ✅ FIX: Xử lý maxValue = 0
+                if (maxValue <= 0)
+                {
+                    maxValue = 1f;
+                }
+
                 ChartDataPoint newHovered = null;
 
                 for (int i = 0; i < _data.Count; i++)
                 {
                     float x = chartArea.X + i * (barWidth + spacing) + _panOffset.X * _zoomLevel;
                     float height = (float)(chartArea.Height * (_data[i].Value / maxValue) * _zoomLevel);
+                    
+                    // ✅ FIX: Đảm bảo chiều cao tối thiểu
+                    if (height < 1f) height = 1f;
+                    
                     float y = chartArea.Bottom - height;
 
                     var barRect = new RectangleF(x, y, barWidth * _zoomLevel, height);
@@ -263,6 +273,18 @@ namespace ToDoList.GUI.Components
             float spacing = chartArea.Width / _data.Count * 0.2f;
             float maxValue = (float)_data.Max(d => d.Value);
 
+            // ✅ FIX: Xử lý trường hợp maxValue = 0 (tất cả giá trị đều = 0)
+            if (maxValue <= 0)
+            {
+                maxValue = 1f; // Đặt giá trị mặc định để tránh chia cho 0
+            }
+
+            // ✅ FIX: Đảm bảo barWidth hợp lệ
+            if (barWidth <= 0)
+            {
+                barWidth = 1f;
+            }
+
             // Draw grid lines
             DrawGridLines(g, chartArea, maxValue);
 
@@ -272,10 +294,21 @@ namespace ToDoList.GUI.Components
                 var dataPoint = _data[i];
                 float x = chartArea.X + i * (barWidth + spacing) + _panOffset.X * _zoomLevel;
                 float height = (float)(chartArea.Height * (dataPoint.Value / maxValue) * _zoomLevel);
+                
+                // ✅ FIX: Đảm bảo chiều cao tối thiểu để tránh ArgumentException
+                if (height < 1f)
+                {
+                    height = 1f; // Chiều cao tối thiểu 1 pixel
+                }
+                
                 float y = chartArea.Bottom - height;
 
                 // Draw bar with gradient
                 var rect = new RectangleF(x, y, barWidth * _zoomLevel, height);
+                
+                // ✅ FIX: Đảm bảo kích thước rect hợp lệ trước khi tạo gradient
+                if (rect.Width < 1f) rect.Width = 1f;
+                if (rect.Height < 1f) rect.Height = 1f;
                 
                 // Highlight on hover
                 bool isHovered = dataPoint == _hoveredPoint;
@@ -301,7 +334,7 @@ namespace ToDoList.GUI.Components
                 }
 
                 // Draw value on top
-                if (_zoomLevel >= 0.8f)
+                if (_zoomLevel >= 0.8f && dataPoint.Value > 0) // ✅ Chỉ hiển thị giá trị > 0
                 {
                     string valueText = dataPoint.Value.ToString("F0");
                     using (var font = new Font("Segoe UI", 10F * _zoomLevel, FontStyle.Bold))
@@ -344,6 +377,13 @@ namespace ToDoList.GUI.Components
             if (_data.Count < 2) return;
 
             float maxValue = (float)_data.Max(d => d.Value);
+            
+            // ✅ FIX: Xử lý maxValue = 0
+            if (maxValue <= 0)
+            {
+                maxValue = 1f;
+            }
+            
             float pointSpacing = chartArea.Width / (_data.Count - 1);
 
             // Draw grid
@@ -405,13 +445,34 @@ namespace ToDoList.GUI.Components
             int centerY = chartArea.Y + chartArea.Height / 2;
             int radius = (int)(Math.Min(chartArea.Width, chartArea.Height) / 2 * 0.8f * _zoomLevel);
 
+            // ✅ FIX: Đảm bảo radius hợp lệ
+            if (radius < 10)
+            {
+                radius = 10; // Bán kính tối thiểu
+            }
+
             float total = (float)_data.Sum(d => d.Value);
+            
+            // ✅ FIX: Xử lý tổng giá trị = 0
+            if (total <= 0)
+            {
+                // Vẽ thông báo không có dữ liệu
+                DrawNoDataMessage(g);
+                return;
+            }
+            
             float startAngle = 0;
 
             for (int i = 0; i < _data.Count; i++)
             {
                 var dataPoint = _data[i];
                 float sweepAngle = (float)(360.0 * dataPoint.Value / total);
+                
+                // ✅ FIX: Bỏ qua slice có góc quét quá nhỏ (< 0.1 độ)
+                if (sweepAngle < 0.1f)
+                {
+                    continue;
+                }
                 
                 bool isHovered = dataPoint == _hoveredPoint;
                 int adjustedRadius = radius + (isHovered ? 20 : 0);
@@ -435,18 +496,21 @@ namespace ToDoList.GUI.Components
                     }
                 }
 
-                // Draw label
-                float labelAngle = startAngle + sweepAngle / 2;
-                float labelRadius = adjustedRadius + 40;
-                int labelX = centerX + (int)(labelRadius * Math.Cos(labelAngle * Math.PI / 180));
-                int labelY = centerY + (int)(labelRadius * Math.Sin(labelAngle * Math.PI / 180));
-
-                string label = $"{dataPoint.Label}\n{(dataPoint.Value / total * 100):F1}%";
-                using (var font = new Font("Segoe UI", 9F * _zoomLevel, FontStyle.Bold))
-                using (var brush = new SolidBrush(Color.White))
+                // Draw label - chỉ vẽ nếu slice đủ lớn (> 5%)
+                if ((dataPoint.Value / total * 100) > 5)
                 {
-                    var textSize = g.MeasureString(label, font);
-                    g.DrawString(label, font, brush, labelX - textSize.Width / 2, labelY - textSize.Height / 2);
+                    float labelAngle = startAngle + sweepAngle / 2;
+                    float labelRadius = adjustedRadius + 40;
+                    int labelX = centerX + (int)(labelRadius * Math.Cos(labelAngle * Math.PI / 180));
+                    int labelY = centerY + (int)(labelRadius * Math.Sin(labelAngle * Math.PI / 180));
+
+                    string label = $"{dataPoint.Label}\n{(dataPoint.Value / total * 100):F1}%";
+                    using (var font = new Font("Segoe UI", 9F * _zoomLevel, FontStyle.Bold))
+                    using (var brush = new SolidBrush(Color.White))
+                    {
+                        var textSize = g.MeasureString(label, font);
+                        g.DrawString(label, font, brush, labelX - textSize.Width / 2, labelY - textSize.Height / 2);
+                    }
                 }
 
                 startAngle += sweepAngle;
@@ -459,6 +523,13 @@ namespace ToDoList.GUI.Components
             if (_data.Count < 2) return;
 
             float maxValue = (float)_data.Max(d => d.Value);
+            
+            // ✅ FIX: Xử lý maxValue = 0
+            if (maxValue <= 0)
+            {
+                maxValue = 1f;
+            }
+            
             float pointSpacing = chartArea.Width / (_data.Count - 1);
 
             // Draw grid
@@ -487,21 +558,28 @@ namespace ToDoList.GUI.Components
                 path.AddLines(points.ToArray());
                 path.CloseFigure();
 
-                using (var brush = new LinearGradientBrush(
-                    new Point(0, chartArea.Top),
-                    new Point(0, chartArea.Bottom),
-                    Color.FromArgb(120, 100, 149, 237),
-                    Color.FromArgb(20, 100, 149, 237)))
+                // ✅ FIX: Đảm bảo chartArea hợp lệ trước khi tạo LinearGradientBrush
+                if (chartArea.Height > 0)
                 {
-                    g.FillPath(brush, path);
+                    using (var brush = new LinearGradientBrush(
+                        new Point(0, chartArea.Top),
+                        new Point(0, chartArea.Bottom),
+                        Color.FromArgb(120, 100, 149, 237),
+                        Color.FromArgb(20, 100, 149, 237)))
+                    {
+                        g.FillPath(brush, path);
+                    }
                 }
             }
 
             // Draw line on top
             var linePoints = points.Skip(1).Take(_data.Count).ToArray();
-            using (var pen = new Pen(Color.FromArgb(100, 149, 237), 3 * _zoomLevel))
+            if (linePoints.Length > 1) // ✅ Đảm bảo có ít nhất 2 điểm để vẽ đường
             {
-                g.DrawLines(pen, linePoints);
+                using (var pen = new Pen(Color.FromArgb(100, 149, 237), 3 * _zoomLevel))
+                {
+                    g.DrawLines(pen, linePoints);
+                }
             }
 
             // Draw axes
