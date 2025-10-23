@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -30,7 +30,7 @@ namespace ToDoList.GUI.Forms
         private void InitializeComponent()
         {
             this.Size = new Size(1200, 800);
-            this.Text = "Th?ng kê nâng cao - ToDoList Analytics";
+            this.Text = "Thong ke nang cao - ToDoList Analytics";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.FromArgb(20, 20, 20);
             this.FormBorderStyle = FormBorderStyle.Sizable;
@@ -52,7 +52,7 @@ namespace ToDoList.GUI.Forms
 
             Label lblTitle = new Label
             {
-                Text = "?? Th?ng kê nâng cao - ToDoList Analytics",
+                Text = "Thong ke nang cao - ToDoList Analytics",
                 Location = new Point(20, 20),
                 Size = new Size(500, 30),
                 Font = new Font("Segoe UI", 16F, FontStyle.Bold),
@@ -62,7 +62,7 @@ namespace ToDoList.GUI.Forms
 
             Button btnClose = new Button
             {
-                Text = "?",
+                Text = "X",
                 Location = new Point(1130, 20),
                 Size = new Size(40, 30),
                 FlatStyle = FlatStyle.Flat,
@@ -88,121 +88,98 @@ namespace ToDoList.GUI.Forms
                 Padding = new Point(10, 5)
             };
 
-            // Tab 1: T?ng quan
-            TabPage tabOverview = new TabPage("T?ng quan")
+            // Tab 1: Tong quan
+            TabPage tabOverview = new TabPage("Tong quan")
             {
                 BackColor = Color.FromArgb(20, 20, 20)
             };
             CreateOverviewTab(tabOverview);
 
-            // Tab 2: N?ng su?t
-            TabPage tabProductivity = new TabPage("N?ng su?t")
+            // Tab 2: Nang suat
+            TabPage tabProductivity = new TabPage("Nang suat")
             {
                 BackColor = Color.FromArgb(20, 20, 20)
             };
             CreateProductivityTab(tabProductivity);
 
-            // Tab 3: Phân tích d? án
-            TabPage tabProjectAnalysis = new TabPage("Phân tích d? án")
+            // Tab 3: Tien do
+            TabPage tabProgress = new TabPage("Tien do")
             {
                 BackColor = Color.FromArgb(20, 20, 20)
             };
-            CreateProjectAnalysisTab(tabProjectAnalysis);
+            CreateProgressTab(tabProgress);
 
-            // Tab 4: Phân tích th?i gian
-            TabPage tabTimeAnalysis = new TabPage("Phân tích th?i gian")
+            // Tab 4: Thoi gian
+            TabPage tabTime = new TabPage("Thoi gian")
             {
                 BackColor = Color.FromArgb(20, 20, 20)
             };
-            CreateTimeAnalysisTab(tabTimeAnalysis);
+            CreateTimeTab(tabTime);
 
             tabControl.TabPages.Add(tabOverview);
             tabControl.TabPages.Add(tabProductivity);
-            tabControl.TabPages.Add(tabProjectAnalysis);
-            tabControl.TabPages.Add(tabTimeAnalysis);
+            tabControl.TabPages.Add(tabProgress);
+            tabControl.TabPages.Add(tabTime);
 
             this.Controls.Add(tabControl);
         }
 
         private void CreateOverviewTab(TabPage tab)
         {
-            Panel container = new Panel
+            pnlOverview = new Panel
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
-                Padding = new Padding(20)
+                BackColor = Color.FromArgb(20, 20, 20),
+                Padding = new Padding(30)
             };
 
-            // ===== TOP 4 STATISTICS BOXES =====
-            Panel pnlTopStats = new Panel
+            // Title
+            Label lblOverviewTitle = new Label
             {
-                Location = new Point(20, 20),
-                Size = new Size(1100, 130),  // ? Gi?m width t? 1120 xu?ng 1100, height t? 140 xu?ng 130
+       
+                Location = new Point(30, 20),
+                Size = new Size(300, 35),
+                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                ForeColor = Color.White,
                 BackColor = Color.Transparent
             };
 
-            // Box 1: T?ng Projects
-            var box1 = CreateStatBox(
-                "?? T?ng Projects",
-                "0",
-                "projects",
-                Color.FromArgb(100, 149, 237),
-                new Point(0, 0)
-            );
-
-            // Box 2: T?ng Tasks  // ? Gi?m kho?ng cách t? 290 xu?ng 275
-            var box2 = CreateStatBox(
-                "?? T?ng Tasks",
-                "0",
-                "tasks",
-                Color.FromArgb(46, 204, 113),
-                new Point(275, 0)
-            );
-
-            // Box 3: Hoàn thành  // ? ?i?u ch?nh v? trí
-            var box3 = CreateStatBox(
-                "? Hoàn thành",
-                "0%",
-                "completion",
-                Color.FromArgb(155, 89, 182),
-                new Point(550, 0)
-            );
-
-            // Box 4: Th?i gian  // ? ?i?u ch?nh v? trí
-            var box4 = CreateStatBox(
-                "?? Th?i gian",
-                "0h",
-                "hours",
-                Color.FromArgb(241, 196, 15),
-                new Point(825, 0)
-            );
-
-            pnlTopStats.Controls.Add(box1);
-            pnlTopStats.Controls.Add(box2);
-            pnlTopStats.Controls.Add(box3);
-            pnlTopStats.Controls.Add(box4);
-
-            // Store references for updating
-            box1.Tag = "totalProjects";
-            box2.Tag = "totalTasks";
-            box3.Tag = "completionRate";
-            box4.Tag = "totalTime";
-
-            // ===== ACTIVITY SECTION =====
-            Panel pnlActivity = new Panel
+            // Stats cards container (ROW 1)
+            FlowLayoutPanel flowStats = new FlowLayoutPanel
             {
-                Location = new Point(20, 180),
-                Size = new Size(540, 400),
+                Location = new Point(30, 70),
+                Size = new Size(1100, 180),
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                BackColor = Color.Transparent
+            };
+
+            // Create 4 stat cards
+            flowStats.Controls.Add(CreateStatCard("", "Tá»•ng Projects", "0", "projects", Color.FromArgb(52, 152, 219)));
+            flowStats.Controls.Add(CreateStatCard("", "Tá»•ng Tasks", "0", "tasks", Color.FromArgb(46, 204, 113)));
+            flowStats.Controls.Add(CreateStatCard("", "HoÃ n thÃ nh", "0%", "completion", Color.FromArgb(155, 89, 182)));
+            flowStats.Controls.Add(CreateStatCard("", "Thá»i gian", "0h", "time spent", Color.FromArgb(230, 126, 34)));
+
+            // ========================================
+            // ROW 2: TWO SECTIONS (Activity + Progress)
+            // ========================================
+            
+            // LEFT: Activity Section
+            Panel pnlActivitySection = new Panel
+            {
+                Location = new Point(30, 270),
+                Size = new Size(530, 420),
                 BackColor = Color.FromArgb(30, 30, 30),
                 Padding = new Padding(20)
             };
 
             Label lblActivityTitle = new Label
             {
-                Text = "?? Ho?t ??ng g?n ?ây",
+                Text = "ðŸ“ Hoáº¡t Ä‘á»™ng gáº§n Ä‘Ã¢y",
                 Location = new Point(20, 15),
-                Size = new Size(500, 30),
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                Size = new Size(490, 30),
+                Font = new Font("Arial", 14F, FontStyle.Bold, GraphicsUnit.Point),
                 ForeColor = Color.White,
                 BackColor = Color.Transparent
             };
@@ -210,91 +187,87 @@ namespace ToDoList.GUI.Forms
             FlowLayoutPanel flowActivity = new FlowLayoutPanel
             {
                 Location = new Point(20, 55),
-                Size = new Size(500, 325),
-                AutoScroll = true,
+                Size = new Size(490, 345),
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
-                BackColor = Color.Transparent
+                AutoScroll = true,
+                BackColor = Color.Transparent,
+                Name = "flowActivity"
             };
-            flowActivity.Name = "flowActivity";
 
-            pnlActivity.Controls.Add(lblActivityTitle);
-            pnlActivity.Controls.Add(flowActivity);
+            pnlActivitySection.Controls.Add(lblActivityTitle);
+            pnlActivitySection.Controls.Add(flowActivity);
 
-            // ===== PROGRESS SECTION =====
-            Panel pnlProgress = new Panel
+            // RIGHT: Progress Section
+            Panel pnlProgressSection = new Panel
             {
-                Location = new Point(580, 180),
-                Size = new Size(540, 400),
+                Location = new Point(580, 270),
+                Size = new Size(550, 420),
                 BackColor = Color.FromArgb(30, 30, 30),
                 Padding = new Padding(20)
             };
 
             Label lblProgressTitle = new Label
             {
-                Text = "?? Ti?n ?? theo d? án",
+                Text = "ðŸ“Š Tiáº¿n Ä‘á»™ dá»± Ã¡n",
                 Location = new Point(20, 15),
-                Size = new Size(500, 30),
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                Size = new Size(510, 30),
+                Font = new Font("Arial", 14F, FontStyle.Bold, GraphicsUnit.Point),
                 ForeColor = Color.White,
                 BackColor = Color.Transparent
             };
 
-            Panel pnlProgressBars = new Panel
+            FlowLayoutPanel flowProgressSection = new FlowLayoutPanel
             {
                 Location = new Point(20, 55),
-                Size = new Size(500, 325),
+                Size = new Size(510, 345),
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
                 AutoScroll = true,
-                BackColor = Color.Transparent
+                BackColor = Color.Transparent,
+                Name = "flowProgressOverview"
             };
-            pnlProgressBars.Name = "pnlProgressBars";
 
-            pnlProgress.Controls.Add(lblProgressTitle);
-            pnlProgress.Controls.Add(pnlProgressBars);
+            pnlProgressSection.Controls.Add(lblProgressTitle);
+            pnlProgressSection.Controls.Add(flowProgressSection);
 
-            container.Controls.Add(pnlTopStats);
-            container.Controls.Add(pnlActivity);
-            container.Controls.Add(pnlProgress);
-            tab.Controls.Add(container);
+            // Add all to overview panel
+            pnlOverview.Controls.Add(lblOverviewTitle);
+            pnlOverview.Controls.Add(flowStats);
+            pnlOverview.Controls.Add(pnlActivitySection);
+            pnlOverview.Controls.Add(pnlProgressSection);
+            
+            tab.Controls.Add(pnlOverview);
         }
 
-        private Panel CreateStatBox(string title, string value, string subtitle, Color color, Point location)
+        private Panel CreateStatCard(string icon, string label, string value, string subtitle, Color color)
         {
-            Panel box = new Panel
+            Panel card = new Panel
             {
-                Location = location,
-                Size = new Size(260, 120),  // ? Gi?m t? 270x130 xu?ng 260x120
-                BackColor = Color.FromArgb(35, 35, 35),
-                Cursor = Cursors.Hand
+                Size = new Size(250, 150),
+                BackColor = Color.FromArgb(30, 30, 30),
+                Margin = new Padding(10),
+                Padding = new Padding(20)
             };
 
-            // Icon background with color
-            Panel iconBg = new Panel
-            {
-                Location = new Point(15, 15),
-                Size = new Size(45, 45),  // ? T?ng t? 50x50 lên 45x45
-                BackColor = color
-            };
-
+            // Icon
             Label lblIcon = new Label
             {
-                Text = title.Split(' ')[0], // Get emoji
-                Location = new Point(0, 0),
-                Size = new Size(45, 45),  // ? Match with iconBg
-                Font = new Font("Segoe UI", 18F),  // ? Gi?m t? 20F xu?ng 18F
-                ForeColor = Color.White,
-                BackColor = Color.Transparent,
-                TextAlign = ContentAlignment.MiddleCenter
+                Text = icon,
+                Location = new Point(20, 20),
+                Size = new Size(50, 50),
+                Font = new Font("Segoe UI", 28F),
+                ForeColor = color,
+                BackColor = Color.Transparent
             };
-            iconBg.Controls.Add(lblIcon);
 
-            // Title
-            Label lblTitle = new Label
+            // Label
+            Label lblLabel = new Label
             {
-                Text = title.Substring(title.IndexOf(' ') + 1), // Remove emoji
-                Location = new Point(70, 18),  // ? ?i?u ch?nh X t? 85 xu?ng 70
-                Size = new Size(175, 22),  // ? Gi?m width và height
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),  // ? Gi?m t? 10F xu?ng 9F
+                Text = label,
+                Location = new Point(20, 80),
+                Size = new Size(200, 20),
+                Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.FromArgb(180, 180, 180),
                 BackColor = Color.Transparent
             };
@@ -303,324 +276,236 @@ namespace ToDoList.GUI.Forms
             Label lblValue = new Label
             {
                 Text = value,
-                Location = new Point(15, 70),  // ? ?i?u ch?nh Y t? 80 xu?ng 70
-                Size = new Size(160, 30),  // ? Gi?m height t? 35 xu?ng 30
-                Font = new Font("Segoe UI", 18F, FontStyle.Bold),  // ? Gi?m t? 22F xu?ng 18F
+                Location = new Point(20, 100),
+                Size = new Size(150, 30),
+                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
                 ForeColor = Color.White,
                 BackColor = Color.Transparent,
-                AutoSize = false  // ? Prevent auto-sizing
+                Name = $"lblValue_{subtitle.Replace(" ", "")}"
             };
-            lblValue.Name = "value";
 
             // Subtitle
             Label lblSubtitle = new Label
             {
                 Text = subtitle,
-                Location = new Point(180, 80),  // ? ?i?u ch?nh v? trí
-                Size = new Size(70, 18),  // ? Gi?m height
-                Font = new Font("Segoe UI", 7F),  // ? Gi?m t? 8F xu?ng 7F
-                ForeColor = Color.FromArgb(120, 120, 120),
-                BackColor = Color.Transparent,
-                TextAlign = ContentAlignment.MiddleRight
-            };
-
-            box.Controls.Add(iconBg);
-            box.Controls.Add(lblTitle);
-            box.Controls.Add(lblValue);
-            box.Controls.Add(lblSubtitle);
-
-            // Hover effect
-            box.MouseEnter += (s, e) => box.BackColor = Color.FromArgb(45, 45, 45);
-            box.MouseLeave += (s, e) => box.BackColor = Color.FromArgb(35, 35, 35);
-
-            // Border
-            box.Paint += (s, e) =>
-            {
-                var rect = new Rectangle(0, 0, box.Width - 1, box.Height - 1);
-                using (var pen = new Pen(Color.FromArgb(50, 50, 50), 1))
-                {
-                    e.Graphics.DrawRectangle(pen, rect);
-                }
-            };
-
-            return box;
-        }
-
-        private void CreateProductivityTab(TabPage tab)
-        {
-            Label lbl = new Label
-            {
-                Text = "?? Bi?u ?? n?ng su?t ?ang ???c phát tri?n...",
-                Location = new Point(50, 50),
-                Size = new Size(500, 30),
-                Font = new Font("Segoe UI", 12F),
-                ForeColor = Color.White,
-                BackColor = Color.Transparent
-            };
-            tab.Controls.Add(lbl);
-        }
-
-        private void CreateProjectAnalysisTab(TabPage tab)
-        {
-            Label lbl = new Label
-            {
-                Text = "?? Phân tích d? án ?ang ???c phát tri?n...",
-                Location = new Point(50, 50),
-                Size = new Size(500, 30),
-                Font = new Font("Segoe UI", 12F),
-                ForeColor = Color.White,
-                BackColor = Color.Transparent
-            };
-            tab.Controls.Add(lbl);
-        }
-
-        private void CreateTimeAnalysisTab(TabPage tab)
-        {
-            Label lbl = new Label
-            {
-                Text = "? Phân tích th?i gian ?ang ???c phát tri?n...",
-                Location = new Point(50, 50),
-                Size = new Size(500, 30),
-                Font = new Font("Segoe UI", 12F),
-                ForeColor = Color.White,
-                BackColor = Color.Transparent
-            };
-            tab.Controls.Add(lbl);
-        }
-
-        private async void LoadStatistics()
-        {
-            try
-            {
-                // Load data from database
-                var totalProjects = await _context.Projects.CountAsync(p => p.IsArchived != true);
-                var totalTasks = await _context.Tasks.CountAsync(t => t.IsDeleted != true);
-                var completedTasks = await _context.Tasks.CountAsync(t => t.IsDeleted != true && t.Status == "Completed");
-                var totalMinutes = await _context.Tasks
-                    .Where(t => t.IsDeleted != true && t.ActualMinutes.HasValue)
-                    .SumAsync(t => t.ActualMinutes.Value);
-
-                var completionRate = totalTasks > 0 ? (completedTasks * 100.0 / totalTasks) : 0;
-                var totalHours = totalMinutes / 60.0;
-
-                // Update stat boxes
-                UpdateStatBox("totalProjects", totalProjects.ToString(), "projects");
-                UpdateStatBox("totalTasks", totalTasks.ToString(), "tasks");
-                UpdateStatBox("completionRate", $"{completionRate:F1}%", "completion rate");
-                UpdateStatBox("totalTime", $"{totalHours:F1}h", "total hours");
-
-                // Load recent activity
-                await LoadRecentActivity();
-
-                // Load project progress
-                await LoadProjectProgress();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"L?i khi t?i th?ng kê: {ex.Message}", "L?i",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void UpdateStatBox(string tag, string value, string subtitle)
-        {
-            foreach (Control ctrl in this.Controls)
-            {
-                if (ctrl is TabControl tc)
-                {
-                    foreach (TabPage tp in tc.TabPages)
-                    {
-                        var box = FindControlByTag(tp, tag);
-                        if (box != null)
-                        {
-                            var lblValue = box.Controls.Find("value", false).FirstOrDefault() as Label;
-                            if (lblValue != null)
-                            {
-                                // ? Truncate long values to prevent overflow
-                                lblValue.Text = TruncateValue(value, 12);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private string TruncateValue(string value, int maxLength)
-        {
-            if (value.Length <= maxLength)
-                return value;
-            return value.Substring(0, maxLength - 2) + "..";
-        }
-
-        private Control? FindControlByTag(Control parent, string tag)
-        {
-            if (parent.Tag?.ToString() == tag)
-                return parent;
-
-            foreach (Control child in parent.Controls)
-            {
-                var found = FindControlByTag(child, tag);
-                if (found != null)
-                    return found;
-            }
-            return null;
-        }
-
-        private async System.Threading.Tasks.Task LoadRecentActivity()
-        {
-            try
-            {
-                var recentTasks = await _context.Tasks
-                    .Where(t => t.IsDeleted != true)
-                    .OrderByDescending(t => t.UpdatedAt ?? t.CreatedAt)
-                    .Take(8)
-                    .Include(t => t.Project)
-                    .ToListAsync();
-
-                // Find the flow panel
-                var flowActivity = FindControlByName(this, "flowActivity") as FlowLayoutPanel;
-                if (flowActivity != null)
-                {
-                    flowActivity.Controls.Clear();
-
-                    foreach (var task in recentTasks)
-                    {
-                        var activityItem = CreateActivityItem(task);
-                        flowActivity.Controls.Add(activityItem);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading activity: {ex.Message}");
-            }
-        }
-
-        private Panel CreateActivityItem(TodoListApp.DAL.Models.Task task)
-        {
-            Panel item = new Panel
-            {
-                Width = 480,
-                Height = 32,  // ? Gi?m t? 35 xu?ng 32
-                BackColor = Color.FromArgb(40, 40, 40),
-                Margin = new Padding(0, 2, 0, 2)  // ? Gi?m margin
-            };
-
-            // Status icon
-            string icon = task.Status == "Completed" ? "?" : "?";
-            Color iconColor = task.Status == "Completed" ? Color.FromArgb(46, 204, 113) : Color.FromArgb(241, 196, 15);
-
-            Label lblIcon = new Label
-            {
-                Text = icon,
-                Location = new Point(8, 6),  // ? ?i?u ch?nh v? trí
-                Size = new Size(18, 18),  // ? Gi?m size
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),  // ? Gi?m font
-                ForeColor = iconColor,
-                BackColor = Color.Transparent
-            };
-
-            // Task title
-            Label lblTitle = new Label
-            {
-                Text = TruncateText(task.Title, 35),  // ? Thêm truncate
-                Location = new Point(35, 7),  // ? ?i?u ch?nh v? trí
-                Size = new Size(260, 18),  // ? Gi?m height
-                Font = new Font("Segoe UI", 8F),  // ? Gi?m font t? 9F xu?ng 8F
-                ForeColor = Color.White,
-                BackColor = Color.Transparent,
-                AutoEllipsis = true
-            };
-
-            // Project name
-            Label lblProject = new Label
-            {
-                Text = TruncateText(task.Project?.ProjectName ?? "N/A", 12),  // ? Thêm truncate
-                Location = new Point(305, 7),  // ? ?i?u ch?nh v? trí
-                Size = new Size(95, 18),  // ? Gi?m width
-                Font = new Font("Segoe UI", 7F),  // ? Gi?m font t? 8F xu?ng 7F
-                ForeColor = Color.FromArgb(150, 150, 150),
-                BackColor = Color.Transparent,
-                TextAlign = ContentAlignment.MiddleRight
-            };
-
-            // Time
-            var timeAgo = GetTimeAgo(task.UpdatedAt ?? task.CreatedAt);
-            Label lblTime = new Label
-            {
-                Text = timeAgo,
-                Location = new Point(410, 7),  // ? ?i?u ch?nh v? trí
-                Size = new Size(60, 18),  // ? T?ng width
+                Location = new Point(170, 110),
+                Size = new Size(70, 15),
                 Font = new Font("Segoe UI", 7F),
                 ForeColor = Color.FromArgb(120, 120, 120),
                 BackColor = Color.Transparent,
                 TextAlign = ContentAlignment.MiddleRight
             };
 
-            item.Controls.Add(lblIcon);
-            item.Controls.Add(lblTitle);
-            item.Controls.Add(lblProject);
-            item.Controls.Add(lblTime);
+            card.Controls.Add(lblIcon);
+            card.Controls.Add(lblLabel);
+            card.Controls.Add(lblValue);
+            card.Controls.Add(lblSubtitle);
 
-            return item;
+            // Hover effect
+            card.MouseEnter += (s, e) => card.BackColor = Color.FromArgb(40, 40, 40);
+            card.MouseLeave += (s, e) => card.BackColor = Color.FromArgb(30, 30, 30);
+
+            return card;
         }
 
-        private string TruncateText(string text, int maxLength)
+        private void CreateProductivityTab(TabPage tab)
         {
-            if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
-                return text;
-            return text.Substring(0, maxLength - 2) + "..";
+            pnlActivity = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.FromArgb(20, 20, 20),
+                Padding = new Padding(30)
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = "NÄƒng suáº¥t lÃ m viá»‡c",
+                Location = new Point(30, 20),
+                Size = new Size(400, 35),
+                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent
+            };
+
+            pnlActivity.Controls.Add(lblTitle);
+            tab.Controls.Add(pnlActivity);
+        }
+
+        private void CreateProgressTab(TabPage tab)
+        {
+            pnlProgress = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.FromArgb(20, 20, 20),
+                Padding = new Padding(30)
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = "Tien do theo du an",
+                Location = new Point(30, 20),
+                Size = new Size(400, 35),
+                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent
+            };
+
+            // Progress list container
+            FlowLayoutPanel flowProgress = new FlowLayoutPanel
+            {
+                Location = new Point(30, 70),
+                Size = new Size(1100, 600),
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true,
+                BackColor = Color.Transparent,
+                Name = "flowProgress"
+            };
+
+            pnlProgress.Controls.Add(lblTitle);
+            pnlProgress.Controls.Add(flowProgress);
+            tab.Controls.Add(pnlProgress);
+        }
+
+        private void CreateTimeTab(TabPage tab)
+        {
+            pnlTime = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.FromArgb(20, 20, 20),
+                Padding = new Padding(30)
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = "PhÃ¢n tÃ­ch thá»i gian",
+                Location = new Point(30, 20),
+                Size = new Size(400, 35),
+                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent
+            };
+
+            pnlTime.Controls.Add(lblTitle);
+            tab.Controls.Add(pnlTime);
+        }
+
+        private async void LoadStatistics()
+        {
+            try
+            {
+                // Get total projects
+                var totalProjects = await _context.Projects
+                    .Where(p => p.IsArchived != true)
+                    .CountAsync();
+
+                // Get total tasks
+                var totalTasks = await _context.Tasks
+                    .Where(t => t.IsDeleted != true)
+                    .CountAsync();
+
+                // Get completed tasks
+                var completedTasks = await _context.Tasks
+                    .Where(t => t.IsDeleted != true && t.Status == "Completed")
+                    .CountAsync();
+
+                // Calculate completion rate
+                var completionRate = totalTasks > 0 ? (double)completedTasks / totalTasks * 100 : 0;
+
+                // Calculate total time
+                var totalMinutes = await _context.Tasks
+                    .Where(t => t.IsDeleted != true)
+                    .SumAsync(t => t.EstimatedMinutes ?? 0);
+                var totalHours = totalMinutes / 60.0;
+
+                // Update stat cards
+                UpdateStatCard("projects", totalProjects.ToString());
+                UpdateStatCard("tasks", totalTasks.ToString());
+                UpdateStatCard("completion", $"{completionRate:F0}%");
+                UpdateStatCard("timespent", $"{totalHours:F1}h");
+
+                // Load recent activity
+                await LoadRecentActivity();
+                
+                // Load project progress overview
+                await LoadProjectProgressOverview();
+                
+                // Load full project progress (for Progress tab)
+                await LoadProjectProgress();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"á»—i thá»‘ng kÃª: {ex.Message}", "Loi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void UpdateStatCard(string name, string value)
+        {
+            var lblValue = FindControlByName(pnlOverview, $"lblValue_{name}") as Label;
+            if (lblValue != null)
+            {
+                lblValue.Text = value;
+            }
         }
 
         private async System.Threading.Tasks.Task LoadProjectProgress()
         {
             try
             {
+                var progressFlow = FindControlByName(pnlProgress, "flowProgress") as FlowLayoutPanel;
+                if (progressFlow == null) return;
+
+                progressFlow.Controls.Clear();
+
                 var projects = await _context.Projects
                     .Where(p => p.IsArchived != true)
-                    .Include(p => p.Tasks)
+                    .Include(p => p.Tasks.Where(t => t.IsDeleted != true))
                     .ToListAsync();
 
-                var pnlProgressBars = FindControlByName(this, "pnlProgressBars") as Panel;
-                if (pnlProgressBars != null)
+                foreach (var project in projects)
                 {
-                    pnlProgressBars.Controls.Clear();
+                    var totalTasks = project.Tasks.Count();
+                    var completedTasks = project.Tasks.Count(t => t.Status == "Completed");
+                    var percentage = totalTasks > 0 ? (int)((double)completedTasks / totalTasks * 100) : 0;
 
-                    int y = 10;
-                    foreach (var project in projects.Take(6))
-                    {
-                        var totalTasks = project.Tasks?.Count(t => t.IsDeleted != true) ?? 0;
-                        var completedTasks = project.Tasks?.Count(t => t.IsDeleted != true && t.Status == "Completed") ?? 0;
-                        var percentage = totalTasks > 0 ? (completedTasks * 100 / totalTasks) : 0;
+                    var progressItem = CreateProgressItem(
+                        project.ProjectName ?? "Unnamed Project",
+                        percentage,
+                        completedTasks,
+                        totalTasks
+                    );
 
-                        var progressItem = CreateProgressBar(project.ProjectName ?? "Unknown", percentage, totalTasks, completedTasks, y);
-                        pnlProgressBars.Controls.Add(progressItem);
-                        y += 48;  // ? Gi?m t? 55 xu?ng 48
-                    }
+                    progressFlow.Controls.Add(progressItem);
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading progress: {ex.Message}");
+                MessageBox.Show($"Lá»—i  tiáº¿n Ä‘á»™: {ex.Message}", "Loi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private Panel CreateProgressBar(string projectName, int percentage, int total, int completed, int yPosition)
+        private Panel CreateProgressItem(string projectName, int percentage, int completed, int total)
         {
             Panel container = new Panel
             {
-                Location = new Point(10, yPosition),
-                Size = new Size(480, 42),  // ? Gi?m height t? 45 xu?ng 42
-                BackColor = Color.Transparent
+                Size = new Size(1000, 55),
+                BackColor = Color.FromArgb(30, 30, 30),
+                Margin = new Padding(5),
+                Padding = new Padding(15)
             };
 
             // Project name
             Label lblName = new Label
             {
-                Text = TruncateText(projectName, 30),  // ? Thêm truncate
+                Text = TruncateText(projectName, 30),
                 Location = new Point(0, 0),
-                Size = new Size(320, 18),  // ? Gi?m height
-                Font = new Font("Segoe UI", 8F, FontStyle.Bold),  // ? Gi?m t? 9F xu?ng 8F
+                Size = new Size(320, 22),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 ForeColor = Color.White,
                 BackColor = Color.Transparent,
                 AutoEllipsis = true
@@ -631,8 +516,8 @@ namespace ToDoList.GUI.Forms
             {
                 Text = $"{percentage}%",
                 Location = new Point(420, 0),
-                Size = new Size(60, 18),  // ? Gi?m height
-                Font = new Font("Segoe UI", 8F, FontStyle.Bold),  // ? Gi?m t? 9F xu?ng 8F
+                Size = new Size(60, 22),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 ForeColor = GetProgressColor(percentage),
                 BackColor = Color.Transparent,
                 TextAlign = ContentAlignment.MiddleRight
@@ -641,8 +526,8 @@ namespace ToDoList.GUI.Forms
             // Progress bar background
             Panel progressBg = new Panel
             {
-                Location = new Point(0, 22),  // ? ?i?u ch?nh Y t? 25 xu?ng 22
-                Size = new Size(480, 6),  // ? Gi?m height t? 8 xu?ng 6
+                Location = new Point(0, 26),
+                Size = new Size(480, 8),
                 BackColor = Color.FromArgb(50, 50, 50)
             };
 
@@ -650,7 +535,7 @@ namespace ToDoList.GUI.Forms
             Panel progressFill = new Panel
             {
                 Location = new Point(0, 0),
-                Size = new Size((int)(480 * percentage / 100.0), 6),  // ? Gi?m height t? 8 xu?ng 6
+                Size = new Size((int)(480 * percentage / 100.0), 8),
                 BackColor = GetProgressColor(percentage)
             };
             progressBg.Controls.Add(progressFill);
@@ -659,10 +544,10 @@ namespace ToDoList.GUI.Forms
             Label lblCount = new Label
             {
                 Text = $"{completed}/{total} tasks",
-                Location = new Point(0, 30),  // ? ?i?u ch?nh Y t? 35 xu?ng 30
-                Size = new Size(150, 12),  // ? Gi?m height t? 15 xu?ng 12
-                Font = new Font("Segoe UI", 7F),  // ? Font size không ??i
-                ForeColor = Color.FromArgb(150, 150, 150),
+                Location = new Point(0, 36),
+                Size = new Size(150, 14),
+                Font = new Font("Segoe UI", 8F),
+                ForeColor = Color.FromArgb(180, 180, 180),
                 BackColor = Color.Transparent
             };
 
@@ -682,6 +567,12 @@ namespace ToDoList.GUI.Forms
             return Color.FromArgb(231, 76, 60);
         }
 
+        private string TruncateText(string text, int maxLength)
+        {
+            if (text.Length <= maxLength) return text;
+            return text.Substring(0, maxLength - 3) + "...";
+        }
+
         private string GetTimeAgo(DateTime? dateTime)
         {
             if (!dateTime.HasValue)
@@ -689,7 +580,7 @@ namespace ToDoList.GUI.Forms
 
             var timeSpan = DateTime.Now - dateTime.Value;
             
-            if (timeSpan.TotalMinutes < 1) return "now";
+            if (timeSpan.TotalMinutes < 1) return "bÃ¢y giá»";
             if (timeSpan.TotalMinutes < 60) return $"{(int)timeSpan.TotalMinutes}m";
             if (timeSpan.TotalHours < 24) return $"{(int)timeSpan.TotalHours}h";
             if (timeSpan.TotalDays < 7) return $"{(int)timeSpan.TotalDays}d";
@@ -717,6 +608,206 @@ namespace ToDoList.GUI.Forms
                 // Context is passed from outside, don't dispose it
             }
             base.Dispose(disposing);
+        }
+
+        private async System.Threading.Tasks.Task LoadRecentActivity()
+        {
+            try
+            {
+                var activityFlow = FindControlByName(pnlOverview, "flowActivity") as FlowLayoutPanel;
+                if (activityFlow == null) return;
+
+                activityFlow.Controls.Clear();
+
+                var recentTasks = await _context.Tasks
+                    .Where(t => t.IsDeleted != true)
+                    .OrderByDescending(t => t.CreatedAt)
+                    .Take(8)
+                    .Include(t => t.Project)
+                    .ToListAsync();
+
+                foreach (var task in recentTasks)
+                {
+                    var activityItem = CreateActivityItem(
+                        task.Title ?? "Unnamed Task",
+                        task.Project?.ProjectName ?? "No Project",
+                        GetTimeAgo(task.CreatedAt)
+                    );
+                    activityFlow.Controls.Add(activityItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Silently handle errors
+            }
+        }
+
+        private Panel CreateActivityItem(string taskName, string projectName, string timeAgo)
+        {
+            Panel item = new Panel
+            {
+                Size = new Size(470, 40),
+                BackColor = Color.FromArgb(40, 40, 40),
+                Margin = new Padding(0, 2, 0, 2),
+                Padding = new Padding(10)
+            };
+
+            Label lblIcon = new Label
+            {
+                Text = "âœ“",
+                Location = new Point(10, 10),
+                Size = new Size(20, 20),
+                Font = new Font("Arial", 12F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(100, 200, 100),
+                BackColor = Color.Transparent
+            };
+
+            Label lblTask = new Label
+            {
+                Text = TruncateText(taskName, 25),
+                Location = new Point(40, 10),
+                Size = new Size(250, 20),
+                Font = new Font("Arial", 9F, FontStyle.Regular, GraphicsUnit.Point),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                AutoEllipsis = true
+            };
+
+            Label lblProject = new Label
+            {
+                Text = TruncateText(projectName, 12),
+                Location = new Point(300, 10),
+                Size = new Size(100, 20),
+                Font = new Font("Arial", 8F, FontStyle.Regular, GraphicsUnit.Point),
+                ForeColor = Color.FromArgb(150, 150, 150),
+                BackColor = Color.Transparent,
+                TextAlign = ContentAlignment.MiddleRight
+            };
+
+            Label lblTime = new Label
+            {
+                Text = timeAgo,
+                Location = new Point(410, 10),
+                Size = new Size(50, 20),
+                Font = new Font("Arial", 8F, FontStyle.Regular, GraphicsUnit.Point),
+                ForeColor = Color.FromArgb(120, 120, 120),
+                BackColor = Color.Transparent,
+                TextAlign = ContentAlignment.MiddleRight
+            };
+
+            item.Controls.Add(lblIcon);
+            item.Controls.Add(lblTask);
+            item.Controls.Add(lblProject);
+            item.Controls.Add(lblTime);
+
+            return item;
+        }
+
+        private async System.Threading.Tasks.Task LoadProjectProgressOverview()
+        {
+            try
+            {
+                var progressFlow = FindControlByName(pnlOverview, "flowProgressOverview") as FlowLayoutPanel;
+                if (progressFlow == null) return;
+
+                progressFlow.Controls.Clear();
+
+                var projects = await _context.Projects
+                    .Where(p => p.IsArchived != true)
+                    .Include(p => p.Tasks.Where(t => t.IsDeleted != true))
+                    .Take(6)  // Only show top 6 in overview
+                    .ToListAsync();
+
+                foreach (var project in projects)
+                {
+                    var totalTasks = project.Tasks.Count();
+                    var completedTasks = project.Tasks.Count(t => t.Status == "Completed");
+                    var percentage = totalTasks > 0 ? (int)((double)completedTasks / totalTasks * 100) : 0;
+
+                    var progressItem = CreateProgressItemCompact(
+                        project.ProjectName ?? "Unnamed Project",
+                        percentage,
+                        completedTasks,
+                        totalTasks
+                    );
+
+                    progressFlow.Controls.Add(progressItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Silently handle errors
+            }
+        }
+
+        private Panel CreateProgressItemCompact(string projectName, int percentage, int completed, int total)
+        {
+            Panel container = new Panel
+            {
+                Size = new Size(490, 50),
+                BackColor = Color.FromArgb(40, 40, 40),
+                Margin = new Padding(0, 3, 0, 3),
+                Padding = new Padding(12)
+            };
+
+            // Project name
+            Label lblName = new Label
+            {
+                Text = TruncateText(projectName, 25),
+                Location = new Point(12, 8),
+                Size = new Size(300, 18),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                AutoEllipsis = true
+            };
+
+            // Percentage
+            Label lblPercentage = new Label
+            {
+                Text = $"{percentage}%",
+                Location = new Point(420, 8),
+                Size = new Size(60, 18),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point),
+                ForeColor = GetProgressColor(percentage),
+                BackColor = Color.Transparent,
+                TextAlign = ContentAlignment.MiddleRight
+            };
+
+            // Progress bar background
+            Panel progressBg = new Panel
+            {
+                Location = new Point(12, 30),
+                Size = new Size(466, 6),
+                BackColor = Color.FromArgb(60, 60, 60)
+            };
+
+            // Progress bar fill
+            Panel progressFill = new Panel
+            {
+                Location = new Point(0, 0),
+                Size = new Size((int)(466 * percentage / 100.0), 6),
+                BackColor = GetProgressColor(percentage)
+            };
+            progressBg.Controls.Add(progressFill);
+
+            // Task count (smaller text below bar)
+            Label lblCount = new Label
+            {
+                Text = $"{completed}/{total} tasks",
+                Location = new Point(12, 38),
+                Size = new Size(100, 10),
+                Font = new Font("Arial", 7F, FontStyle.Regular, GraphicsUnit.Point),
+                ForeColor = Color.FromArgb(140, 140, 140),
+                BackColor = Color.Transparent
+            };
+
+            container.Controls.Add(lblName);
+            container.Controls.Add(lblPercentage);
+            container.Controls.Add(progressBg);
+            container.Controls.Add(lblCount);
+
+            return container;
         }
     }
 }

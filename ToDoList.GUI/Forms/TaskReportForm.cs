@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -12,7 +12,7 @@ using ToDoList.GUI.Components;
 namespace ToDoList.GUI.Forms
 {
     /// <summary>
-    /// Form b·o c·o chi ti?t cho t?ng task
+    /// Form b√°o c√°o chi ti?t cho t?ng task
     /// </summary>
     public partial class TaskReportForm : Form
     {
@@ -42,7 +42,7 @@ namespace ToDoList.GUI.Forms
         private void InitializeComponent()
         {
             this.Size = new Size(1400, 900);
-            this.Text = $"?? B·o C·o Task: {_task?.Title ?? "N/A"}";
+            this.Text = $"?? B√°o C√°o Task: {_task?.Title ?? "N/A"}";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.FromArgb(18, 18, 18);
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
@@ -134,7 +134,7 @@ namespace ToDoList.GUI.Forms
             {
                 Text = _task?.DueDate.HasValue == true 
                     ? $"?? H?n: {_task.DueDate.Value:dd/MM/yyyy}" 
-                    : "?? KhÙng cÛ h?n",
+                    : "?? Kh√¥ng c√≥ h?n",
                 Location = new Point(340, 75),
                 Size = new Size(200, 20),
                 Font = new Font("Segoe UI", 10F),
@@ -147,7 +147,7 @@ namespace ToDoList.GUI.Forms
             {
                 Text = _task?.CreatedAt.HasValue == true 
                     ? $"?? T?o: {_task.CreatedAt.Value:dd/MM/yyyy HH:mm}" 
-                    : "?? KhÙng rı",
+                    : "?? Kh√¥ng r√µ",
                 Location = new Point(90, 110),
                 Size = new Size(250, 20),
                 Font = new Font("Segoe UI", 9F),
@@ -199,8 +199,8 @@ namespace ToDoList.GUI.Forms
 
             var cards = new[]
             {
-                new { Title = "TH?I GIAN D? KI?N", Value = $"{_task?.EstimatedMinutes ?? 0} ph˙t", Icon = "??", Color = Color.FromArgb(40, 40, 40) },
-                new { Title = "TH?I GIAN TH?C T?", Value = $"{_task?.ActualMinutes ?? 0} ph˙t", Icon = "?", Color = Color.FromArgb(40, 40, 40) },
+                new { Title = "TH?I GIAN D? KI?N", Value = $"{_task?.EstimatedMinutes ?? 0} ph√∫t", Icon = "??", Color = Color.FromArgb(40, 40, 40) },
+                new { Title = "TH?I GIAN TH?C T?", Value = $"{_task?.ActualMinutes ?? 0} ph√∫t", Icon = "?", Color = Color.FromArgb(40, 40, 40) },
                 new { Title = "TI?N ??", Value = CalculateProgress() + "%", Icon = "??", Color = Color.FromArgb(40, 40, 40) },
                 new { Title = "HI?U SU?T", Value = CalculateEfficiency() + "%", Icon = "?", Color = Color.FromArgb(40, 40, 40) }
             };
@@ -324,13 +324,13 @@ namespace ToDoList.GUI.Forms
             {
                 new InteractiveChartControl.ChartDataPoint 
                 { 
-                    Label = "Ho‡n th‡nh", 
+                    Label = "Ho√†n th√†nh", 
                     Value = progress,
                     Color = Color.FromArgb(100, 200, 150)
                 },
                 new InteractiveChartControl.ChartDataPoint 
                 { 
-                    Label = "CÚn l?i", 
+                    Label = "C√≤n l?i", 
                     Value = 100 - progress,
                     Color = Color.FromArgb(60, 60, 60)
                 }
@@ -407,7 +407,7 @@ namespace ToDoList.GUI.Forms
             // For now, show current status
             if (_task?.Status == "In Progress" && _task.UpdatedAt.HasValue)
             {
-                var item = CreateTimelineItem("??", "B?t ??u l‡m vi?c", _task.UpdatedAt.Value);
+                var item = CreateTimelineItem("??", "B?t ??u l√†m vi?c", _task.UpdatedAt.Value);
                 item.Location = new Point(20, yPos);
                 pnlTimeline.Controls.Add(item);
                 yPos += 50;
@@ -415,7 +415,7 @@ namespace ToDoList.GUI.Forms
 
             if (_task?.Status == "Completed" && _task.UpdatedAt.HasValue)
             {
-                var item = CreateTimelineItem("?", "Ho‡n th‡nh", _task.UpdatedAt.Value);
+                var item = CreateTimelineItem("?", "Ho√†n th√†nh", _task.UpdatedAt.Value);
                 item.Location = new Point(20, yPos);
                 pnlTimeline.Controls.Add(item);
                 yPos += 50;
@@ -427,14 +427,14 @@ namespace ToDoList.GUI.Forms
                 var daysLeft = (_task.DueDate.Value - DateTime.Now).Days;
                 if (daysLeft < 0)
                 {
-                    var item = CreateTimelineItem("??", $"Qu· h?n {Math.Abs(daysLeft)} ng‡y", _task.DueDate.Value);
+                    var item = CreateTimelineItem("??", $"Qu√° h?n {Math.Abs(daysLeft)} ng√†y", _task.DueDate.Value);
                     item.BackColor = Color.FromArgb(80, 30, 30);
                     item.Location = new Point(20, yPos);
                     pnlTimeline.Controls.Add(item);
                 }
                 else if (daysLeft <= 3)
                 {
-                    var item = CreateTimelineItem("?", $"CÚn {daysLeft} ng‡y", _task.DueDate.Value);
+                    var item = CreateTimelineItem("?", $"C√≤n {daysLeft} ng√†y", _task.DueDate.Value);
                     item.BackColor = Color.FromArgb(80, 60, 30);
                     item.Location = new Point(20, yPos);
                     pnlTimeline.Controls.Add(item);
@@ -502,7 +502,7 @@ namespace ToDoList.GUI.Forms
 
             Label lblActivityTitle = new Label
             {
-                Text = "?? MÙ T? Task",
+                Text = "?? M√¥ T? Task",
                 Location = new Point(20, 15),
                 Size = new Size(200, 30),
                 Font = new Font("Segoe UI", 16F, FontStyle.Bold),
@@ -518,7 +518,7 @@ namespace ToDoList.GUI.Forms
                 Size = new Size(630, 170),
                 Multiline = true,
                 ReadOnly = true,
-                Text = _task?.Description ?? "KhÙng cÛ mÙ t?.",
+                Text = _task?.Description ?? "Kh√¥ng c√≥ m√¥ t?.",
                 Font = new Font("Segoe UI", 10F),
                 BackColor = Color.FromArgb(40, 40, 40),
                 ForeColor = Color.White,
@@ -563,7 +563,7 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"L?i khi t?i b·o c·o: {ex.Message}", "L?i",
+                MessageBox.Show($"L·ªói khi t·∫£i b√°o c√°o: {ex.Message}", "L?i",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

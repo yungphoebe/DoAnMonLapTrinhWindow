@@ -284,7 +284,7 @@ namespace ToDoList.GUI.Components
             {
                 barWidth = 1f;
             }
-
+    
             // Draw grid lines
             DrawGridLines(g, chartArea, maxValue);
 
@@ -298,7 +298,7 @@ namespace ToDoList.GUI.Components
                 // ✅ FIX: Đảm bảo chiều cao tối thiểu để tránh ArgumentException
                 if (height < 1f)
                 {
-                    height = 1f; // Chiều cao tối thiểu 1 pixel
+                    height = 1f; // Chiều cao tối thiểu 1 pixelx    
                 }
                 
                 float y = chartArea.Bottom - height;

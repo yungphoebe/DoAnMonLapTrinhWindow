@@ -20,7 +20,7 @@ namespace ToDoList.GUI
             // Initialize language system
             LanguageManager.Initialize();
             
-            // Đọc cấu hình từ appsettings.json
+            // Doc cau hinh tu appsettings.json
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true)
@@ -29,12 +29,12 @@ namespace ToDoList.GUI
             bool enableTest = configuration.GetValue<bool>("AppSettings:EnableDatabaseTestOnStartup", false); // Changed to false
             bool useMessageBox = configuration.GetValue<bool>("AppSettings:UseMessageBoxForTest", true);
             
-            // Test kết nối database nếu được bật
+            // Test ket noi database neu duoc bat
             if (enableTest)
             {
                 if (useMessageBox)
                 {
-                    // Dùng Custom Form với font tiếng Việt đẹp
+                    // Dung Custom Form voi font tieng Viet dep
                     using (var testForm = new DatabaseTestForm())
                     {
                         testForm.ShowDialog();
@@ -42,28 +42,28 @@ namespace ToDoList.GUI
                 }
                 else
                 {
-                    // Dùng Console - Cần thiết lập UTF-8
+                    // Dung Console - Can thiet lap UTF-8
                     AllocConsole();
                     Console.OutputEncoding = Encoding.UTF8;
                     Console.InputEncoding = Encoding.UTF8;
                     SimpleConnectionTest.TestConnection();
-                    Console.WriteLine("\n\nNhấn phím bất kỳ để mở ứng dụng...");
+                    Console.WriteLine("\n\nNhan phim bat ky de mo ung dung...");
                     Console.ReadKey();
                     FreeConsole();
                 }
             }
             
-            // Hiển thị màn hình đăng nhập trước
+            // Hien thi man hinh dang nhap truoc
             using (var loginForm = new LoginForm())
             {
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    // Nếu đăng nhập thành công, chạy Form1
+                    // Neu dang nhap thanh cong, chay Form1
                     Application.Run(new Form1());
                 }
                 else
                 {
-                    // Nếu hủy đăng nhập, thoát ứng dụng
+                    // Neu huy dang nhap, thoat ung dung
                     return;
                 }
             }

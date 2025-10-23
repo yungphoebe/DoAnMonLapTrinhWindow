@@ -22,8 +22,22 @@ namespace ToDoList.GUI
             LoadProjectsFromDatabase();
             btnCreateNewList.Click += BtnCreateNewList_Click;
             
+            // ✨ Add Search button click handler
+            btnSearch.Click += BtnSearch_Click;
+            
             // Add test button (for development only)
             AddTestButton();
+        }
+
+        // ✨ NEW: Search button click handler
+        private void BtnSearch_Click(object sender, EventArgs e)
+        {
+            using (var searchForm = new Forms.SearchForm())
+            {
+                searchForm.ShowDialog();
+                // Reload data after search form closes (in case user made changes)
+                LoadProjectsFromDatabase();
+            }
         }
 
         private void UpdateGreetingLabels()
@@ -99,10 +113,121 @@ namespace ToDoList.GUI
             btnReports.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
             btnReports.Click += BtnReports_Click;
             
+            // ✨ NEW: Add Task button
+            Button btnAddTask = new Button
+            {
+                Text = "➕ Add Task",
+                Location = new Point(350, 10),
+                Size = new Size(100, 30),
+                BackColor = Color.FromArgb(80, 200, 120),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+            btnAddTask.FlatAppearance.BorderSize = 0;
+            btnAddTask.FlatAppearance.MouseOverBackColor = Color.FromArgb(100, 220, 140);
+            btnAddTask.Click += BtnAddTask_Click;
+            
             this.Controls.Add(btnTest);
             this.Controls.Add(btnTestDB);
             this.Controls.Add(btnTestData);
             this.Controls.Add(btnReports);
+            this.Controls.Add(btnAddTask);
+            
+            // ✨ NEW: Add Bottom Navigation Panel
+            CreateBottomNavigationPanel();
+        }
+
+        // ✨ NEW: Create Bottom Navigation Panel
+        private void CreateBottomNavigationPanel()
+        {
+            Panel pnlBottomNav = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 60,
+                BackColor = Color.FromArgb(40, 40, 40)
+            };
+
+            // Home button
+            Button btnHome = new Button
+            {
+                Text = "🏠 Trang chủ",
+                Location = new Point(30, 15),
+                Size = new Size(110, 35),
+                BackColor = Color.Transparent,
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnHome.FlatAppearance.BorderSize = 0;
+            btnHome.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
+
+            // ✨ REPORTS BUTTON - MAIN FEATURE
+            Button btnBottomReports = new Button
+            {
+                Text = "📊 Báo cáo",
+                Location = new Point(150, 15),
+                Size = new Size(110, 35),
+                BackColor = Color.FromArgb(100, 149, 237),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnBottomReports.FlatAppearance.BorderSize = 0;
+            btnBottomReports.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
+            btnBottomReports.Click += BtnReports_Click; // ✨ USE EXISTING EVENT HANDLER
+
+            // Tasks button
+            Button btnTasks = new Button
+            {
+                Text = "📋 Công việc",
+                Location = new Point(270, 15),
+                Size = new Size(120, 35),
+                BackColor = Color.Transparent,
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.FromArgb(180, 180, 180),
+                Font = new Font("Segoe UI", 10F),
+                Cursor = Cursors.Hand
+            };
+            btnTasks.FlatAppearance.BorderSize = 0;
+            btnTasks.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
+
+            // Projects button
+            Button btnProjects = new Button
+            {
+                Text = "📁 Dự án",
+                Location = new Point(400, 15),
+                Size = new Size(100, 35),
+                BackColor = Color.Transparent,
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.FromArgb(180, 180, 180),
+                Font = new Font("Segoe UI", 10F),
+                Cursor = Cursors.Hand
+            };
+            btnProjects.FlatAppearance.BorderSize = 0;
+            btnProjects.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
+
+            pnlBottomNav.Controls.Add(btnHome);
+            pnlBottomNav.Controls.Add(btnBottomReports);
+            pnlBottomNav.Controls.Add(btnTasks);
+            pnlBottomNav.Controls.Add(btnProjects);
+
+            this.Controls.Add(pnlBottomNav);
+            pnlBottomNav.BringToFront();
+        }
+
+        // ✨ NEW: Add Task button click handler
+        private void BtnAddTask_Click(object? sender, EventArgs e)
+        {
+            using (var addTaskForm = new Forms.AddTaskToListForm())
+            {
+                if (addTaskForm.ShowDialog() == DialogResult.OK)
+                {
+                    LoadProjectsFromDatabase();
+                }
+            }
         }
 
         private void BtnTest_Click(object? sender, EventArgs e)
@@ -153,22 +278,21 @@ namespace ToDoList.GUI
         {
             try
             {
-                MessageBox.Show("Đang mở form báo cáo...", "Debug", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
                 if (_context == null)
                 {
-                    MessageBox.Show("Database context bị null. Vui lòng khởi động lại ứng dụng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Database context chưa được khởi tạo. Vui lòng khởi động lại ứng dụng.", 
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                using (var reportsForm = new Forms.ReportsForm(_context))
-                {
-                    reportsForm.ShowDialog();
-                }
+                // ✅ MỞ REPORTSFORM (màu đen - original design)
+                var reportsForm = new Forms.ReportsForm(_context);
+                reportsForm.ShowDialog(this);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi mở báo cáo: {ex.Message}\n\nStack trace: {ex.StackTrace}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi mở báo cáo:\n{ex.Message}\n\nStack trace:\n{ex.StackTrace}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TodoListApp.DAL.Models;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ToDoList.GUI.Forms
 {
-    // KH�NG d�ng partial ?? tr�nh Designer can thi?p
+    // KHÔNG dùng partial ?? tránh Designer can thi?p
     public class CuculistMiniForm : Form
     {
         private Project _project;
@@ -14,8 +14,18 @@ namespace ToDoList.GUI.Forms
         private System.Windows.Forms.Timer _timer;
         private TimeSpan _elapsedTime;
         private bool _isTimerRunning;
+        
+        // ? Break functionality variables
+        private bool _isBreak = false;
+        private TimeSpan _pausedTime = TimeSpan.Zero;
+        private DateTime _breakStartTime;
+        private TimeSpan _totalBreakTime = TimeSpan.Zero;
+        private int _breakCount = 0;
+        
         private Label lblTimer;
         private Label lblMarkDone;
+        private Label lblBreakInfo;
+        private Button btnBreak;
         private ToDoListContext _context;
 
         public CuculistMiniForm(Project project, TodoListApp.DAL.Models.Task? currentTask, TimeSpan elapsedTime)
@@ -43,7 +53,7 @@ namespace ToDoList.GUI.Forms
         private void InitializeComponent()
         {
             // ===== FORM SETTINGS =====
-            this.Size = new Size(370, 60);
+            this.Size = new Size(490, 60); // ? Gi?m width t? 540 v? 490
             this.Text = "Cuculist - Focus Timer";
             this.StartPosition = FormStartPosition.Manual;
             this.FormBorderStyle = FormBorderStyle.None;
@@ -66,7 +76,7 @@ namespace ToDoList.GUI.Forms
             {
                 Text = "Mark me as done",
                 Location = new Point(15, 18),
-                Size = new Size(200, 25),
+                Size = new Size(180, 35),
                 Font = new Font("Segoe UI", 14F, FontStyle.Regular),
                 ForeColor = Color.Black,
                 BackColor = Color.Transparent,
@@ -77,12 +87,47 @@ namespace ToDoList.GUI.Forms
             lblMarkDone.MouseEnter += (s, e) => lblMarkDone.ForeColor = Color.Gray;
             lblMarkDone.MouseLeave += (s, e) => lblMarkDone.ForeColor = Color.Black;
 
+            // ? BREAK BUTTON
+            btnBreak = new Button
+            {
+                Text = "?",
+                Location = new Point(200, 15),
+                Size = new Size(40, 35),
+                Font = new Font("Segoe UI", 16F, FontStyle.Regular),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(255, 152, 0), // Màu cam
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                TabStop = false
+            };
+            btnBreak.FlatAppearance.BorderSize = 0;
+            btnBreak.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 172, 50);
+            btnBreak.Click += BtnBreak_Click;
+            
+            // Tooltip
+            var toolTip = new ToolTip();
+            toolTip.SetToolTip(btnBreak, "Tạm dừng để nghỉ giải lao");
+
+            // ? BREAK INFO LABEL (?n m?c ??nh)
+            lblBreakInfo = new Label
+            {
+                Text = "",
+                Location = new Point(245, 5), // ? ?i?u ch?nh l?i v? trí
+                Size = new Size(90, 20),
+                Font = new Font("Segoe UI", 8F, FontStyle.Regular),
+                ForeColor = Color.FromArgb(150, 150, 150),
+                BackColor = Color.Transparent,
+                TextAlign = ContentAlignment.MiddleCenter,
+                AutoSize = false,
+                Visible = false
+            };
+
             // ===== TIMER LABEL =====
             lblTimer = new Label
             {
                 Text = "00:15:30",
-                Location = new Point(245, 18),
-                Size = new Size(110, 25),
+                Location = new Point(245, 23), // ? ?i?u ch?nh l?i v? trí
+                Size = new Size(230, 30),
                 Font = new Font("Segoe UI", 14F, FontStyle.Bold),
                 ForeColor = Color.Black,
                 BackColor = Color.Transparent,
@@ -91,12 +136,15 @@ namespace ToDoList.GUI.Forms
             };
 
             this.Controls.Add(lblMarkDone);
+            this.Controls.Add(btnBreak);
+            this.Controls.Add(lblBreakInfo);
             this.Controls.Add(lblTimer);
 
             // ===== DRAGGABLE =====
             this.MouseDown += Form_MouseDown;
             lblMarkDone.MouseDown += Form_MouseDown;
             lblTimer.MouseDown += Form_MouseDown;
+            btnBreak.MouseDown += Form_MouseDown;
 
             // ===== BORDER =====
             this.Paint += (s, e) =>
@@ -108,13 +156,69 @@ namespace ToDoList.GUI.Forms
             };
         }
 
+        // ? BREAK BUTTON CLICK EVENT
+        private void BtnBreak_Click(object? sender, EventArgs e)
+        {
+            if (!_isBreak)
+            {
+                // ===== B?T ??U BREAK (T?M D?NG) =====
+                _isBreak = true;
+                _isTimerRunning = false;
+                _breakCount++;
+                
+                // L?u l?i th?i gian ?ã ch?y
+                _pausedTime = _elapsedTime;
+                _breakStartTime = DateTime.Now;
+                
+                // ===== ??I GIAO DI?N =====
+                btnBreak.Text = "?";
+                btnBreak.BackColor = Color.FromArgb(76, 175, 80); // Màu xanh lá
+                lblTimer.ForeColor = Color.FromArgb(255, 152, 0); // Màu cam
+                lblBreakInfo.Visible = true;
+                
+                // Tooltip
+                var toolTip = new ToolTip();
+                toolTip.SetToolTip(btnBreak, "Tiếp tục làm việc");
+                
+                // ===== THÔNG BÁO =====
+                this.Text = $"Cuculist - Break #{_breakCount}";
+            }
+            else
+            {
+                // ===== RESUME L?I TIMER =====
+                _isBreak = false;
+                _isTimerRunning = true;
+                
+                // Th?ng kê th?i gian break
+                var breakDuration = DateTime.Now - _breakStartTime;
+                _totalBreakTime += breakDuration;
+                
+                // ===== ??I GIAO DI?N TR? L?I =====
+                btnBreak.Text = "?";
+                btnBreak.BackColor = Color.FromArgb(255, 152, 0); // Màu cam
+                lblTimer.ForeColor = Color.Black;
+                lblBreakInfo.Visible = false;
+                
+                // Tooltip
+                var toolTip = new ToolTip();
+                toolTip.SetToolTip(btnBreak, "Tạm dừng để nghỉ giải lao");
+                
+                this.Text = "Cuculist - Focus Timer";
+            }
+        }
+
         private async void LblMarkDone_Click(object? sender, EventArgs e)
         {
             if (_currentTask != null)
             {
+                // ? Hi?n th? th?ng kê break trong thông báo
+                string breakStats = _breakCount > 0 
+                    ? $"\n\n?? Thống kê:\n• Số lần nghỉ: {_breakCount}\n• Tăng thời gian nghỉ: {_totalBreakTime:mm\\:ss}\n• Thời gian làm việc thực: {(_elapsedTime - _totalBreakTime):hh\\:mm\\:ss}"
+                    : "";
+
                 var result = MessageBox.Show(
-                    $"?�nh d?u task '{_currentTask.Title}' l� ho�n th�nh?",
-                    "X�c nh?n",
+                    $"Đánh dấu task '{_currentTask.Title}' là hoàn thành?{breakStats}",
+                    "Xác nhận",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
@@ -129,8 +233,8 @@ namespace ToDoList.GUI.Forms
                         await _context.SaveChangesAsync();
 
                         MessageBox.Show(
-                            $"? Task '{_currentTask.Title}' ?� ho�n th�nh!",
-                            "Th�nh c�ng",
+                            $" Task '{_currentTask.Title}' đã hoàn thành!\n\n?? Thời gian: {_elapsedTime:hh\\:mm\\:ss}",
+                            "Thành công",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Information);
 
@@ -141,8 +245,8 @@ namespace ToDoList.GUI.Forms
                     catch (Exception ex)
                     {
                         MessageBox.Show(
-                            $"L?i khi c?p nh?t task: {ex.Message}",
-                            "L?i",
+                            $"Lỗi khi cập nhậttask: {ex.Message}",
+                            "Lỗi",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
                     }
@@ -151,8 +255,8 @@ namespace ToDoList.GUI.Forms
             else
             {
                 MessageBox.Show(
-                    "Kh�ng c� task n�o ?ang ???c ch?n.",
-                    "Th�ng b�o",
+                    "Không có task nào đang được chọn",
+                    "Thông báo",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
@@ -192,8 +296,18 @@ namespace ToDoList.GUI.Forms
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            _elapsedTime = _elapsedTime.Add(TimeSpan.FromSeconds(1));
-            UpdateDisplay();
+            // ? CH? c?p nh?t th?i gian khi KHÔNG ?ang Break
+            if (_isTimerRunning && !_isBreak)
+            {
+                _elapsedTime = _elapsedTime.Add(TimeSpan.FromSeconds(1));
+                UpdateDisplay();
+            }
+            // ? Hi?n th? th?i gian break
+            else if (_isBreak)
+            {
+                var breakDuration = DateTime.Now - _breakStartTime;
+                lblBreakInfo.Text = $"Break: {breakDuration:mm\\:ss}";
+            }
         }
 
         private void UpdateDisplay()
@@ -224,6 +338,12 @@ namespace ToDoList.GUI.Forms
                 this.Tag = _elapsedTime;
                 this.DialogResult = DialogResult.Cancel;
                 this.Close();
+                return true;
+            }
+            // ? Phím Space ?? Break/Resume
+            else if (keyData == Keys.Space)
+            {
+                BtnBreak_Click(null, EventArgs.Empty);
                 return true;
             }
             return base.ProcessCmdKey(ref msg, keyData);

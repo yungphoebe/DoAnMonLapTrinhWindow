@@ -1,6 +1,6 @@
 namespace ToDoList.GUI.Forms
 {
-    partial class ReportsForm
+    partial class RegisterForm
     {
         /// <summary>
         /// Required designer variable.

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -20,6 +20,7 @@ namespace ToDoList.GUI.Forms
         private CheckBox chkShowPassword;
         private Panel pnlMain;
         private Label lblError;
+        private Label lblRegisterLink; // ? New: Register link label
 
         public LoginForm()
         {
@@ -29,18 +30,19 @@ namespace ToDoList.GUI.Forms
 
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            
-            // Form properties
-            this.ClientSize = new Size(450, 550);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Text = "??ng Nh?p - ToDoList App";
-            this.BackColor = Color.FromArgb(245, 247, 250);
-            
-            this.ResumeLayout(false);
+            SuspendLayout();
+            // 
+            // LoginForm
+            // 
+            BackColor = Color.FromArgb(245, 247, 250);
+            ClientSize = new Size(450, 550);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "LoginForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Đăng Nhập - ToDoList App";
+            ResumeLayout(false);
         }
 
         private void SetupCustomUI()
@@ -53,7 +55,7 @@ namespace ToDoList.GUI.Forms
                 BackColor = Color.White,
                 BorderStyle = BorderStyle.None
             };
-            
+
             // Add shadow effect
             pnlMain.Paint += (s, e) =>
             {
@@ -66,7 +68,7 @@ namespace ToDoList.GUI.Forms
             // Title
             lblTitle = new Label
             {
-                Text = "??NG NH?P",
+                Text = "Đăng Nhập",
                 Font = new Font("Segoe UI", 20, FontStyle.Bold),
                 ForeColor = Color.FromArgb(52, 73, 94),
                 AutoSize = false,
@@ -91,14 +93,14 @@ namespace ToDoList.GUI.Forms
                 Location = new Point(25, 135),
                 Size = new Size(300, 35),
                 Font = new Font("Segoe UI", 11),
-                PlaceholderText = "Nh?p email c?a b?n",
+                PlaceholderText = "Nhập email của bạn",
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             // Password label
             lblPassword = new Label
             {
-                Text = "M?t kh?u:",
+                Text = "Mật Khẩu:",
                 Font = new Font("Segoe UI", 10, FontStyle.Regular),
                 ForeColor = Color.FromArgb(52, 73, 94),
                 AutoSize = true,
@@ -112,18 +114,18 @@ namespace ToDoList.GUI.Forms
                 Size = new Size(300, 35),
                 Font = new Font("Segoe UI", 11),
                 PasswordChar = '?',
-                PlaceholderText = "Nh?p m?t kh?u",
+                PlaceholderText = "Nhập mật khẩu",
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             // Show password checkbox
             chkShowPassword = new CheckBox
             {
-                Text = "Hi?n th? m?t kh?u",
-                Location = new Point(25, 255),
-                AutoSize = true,
+                Text = "Hiện mật khẩu",
                 Font = new Font("Segoe UI", 9),
-                ForeColor = Color.FromArgb(52, 73, 94)
+                ForeColor = Color.FromArgb(52, 73, 94),
+                AutoSize = true,
+                Location = new Point(25, 255)
             };
             chkShowPassword.CheckedChanged += ChkShowPassword_CheckedChanged;
 
@@ -134,8 +136,8 @@ namespace ToDoList.GUI.Forms
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
                 ForeColor = Color.FromArgb(231, 76, 60),
                 AutoSize = false,
-                Size = new Size(300, 40),
-                Location = new Point(25, 290),
+                Size = new Size(300, 30),
+                Location = new Point(25, 285),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Visible = false
             };
@@ -143,13 +145,13 @@ namespace ToDoList.GUI.Forms
             // Login button
             btnLogin = new Button
             {
-                Text = "??NG NH?P",
-                Location = new Point(25, 345),
-                Size = new Size(300, 45),
+                Text = "ĐĂNG NHẬP",
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 ForeColor = Color.White,
                 BackColor = Color.FromArgb(52, 152, 219),
                 FlatStyle = FlatStyle.Flat,
+                Size = new Size(145, 40),
+                Location = new Point(25, 325),
                 Cursor = Cursors.Hand
             };
             btnLogin.FlatAppearance.BorderSize = 0;
@@ -162,38 +164,88 @@ namespace ToDoList.GUI.Forms
             // Cancel button
             btnCancel = new Button
             {
-                Text = "H?Y",
-                Location = new Point(25, 400),
-                Size = new Size(300, 35),
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
-                ForeColor = Color.FromArgb(127, 140, 141),
-                BackColor = Color.White,
+                Text = "HAY",
+                Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                ForeColor = Color.FromArgb(52, 73, 94),
+                BackColor = Color.FromArgb(236, 240, 241),
                 FlatStyle = FlatStyle.Flat,
+                Size = new Size(145, 40),
+                Location = new Point(180, 325),
                 Cursor = Cursors.Hand
             };
-            btnCancel.FlatAppearance.BorderColor = Color.FromArgb(189, 195, 199);
+            btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.Click += BtnCancel_Click;
 
-            // Add controls to panel
-            pnlMain.Controls.AddRange(new Control[]
-            {
-                lblTitle,
-                lblEmail,
-                txtEmail,
-                lblPassword,
-                txtPassword,
-                chkShowPassword,
-                lblError,
-                btnLogin,
-                btnCancel
-            });
+            // Hover effect for cancel button
+            btnCancel.MouseEnter += (s, e) => btnCancel.BackColor = Color.FromArgb(189, 195, 199);
+            btnCancel.MouseLeave += (s, e) => btnCancel.BackColor = Color.FromArgb(236, 240, 241);
 
-            // Add panel to form
+            // ? NEW: Register link label
+            lblRegisterLink = new Label
+            {
+                Text = "chưa có tài khoản đăng ký ngay",
+                Font = new Font("Segoe UI", 10, FontStyle.Underline),
+                ForeColor = Color.FromArgb(52, 152, 219),
+                AutoSize = false,
+                Size = new Size(300, 25),
+                Location = new Point(25, 385),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Cursor = Cursors.Hand
+            };
+
+            // Add click event to open RegisterForm
+            lblRegisterLink.Click += LblRegisterLink_Click;
+
+            // Add hover effect
+            lblRegisterLink.MouseEnter += (s, e) =>
+            {
+                lblRegisterLink.ForeColor = Color.FromArgb(41, 128, 185);
+                lblRegisterLink.Font = new Font("Segoe UI", 10, FontStyle.Bold | FontStyle.Underline);
+            };
+            lblRegisterLink.MouseLeave += (s, e) =>
+            {
+                lblRegisterLink.ForeColor = Color.FromArgb(52, 152, 219);
+                lblRegisterLink.Font = new Font("Segoe UI", 10, FontStyle.Underline);
+            };
+
+            // Add all controls to main panel
+            pnlMain.Controls.Add(lblTitle);
+            pnlMain.Controls.Add(lblEmail);
+            pnlMain.Controls.Add(txtEmail);
+            pnlMain.Controls.Add(lblPassword);
+            pnlMain.Controls.Add(txtPassword);
+            pnlMain.Controls.Add(chkShowPassword);
+            pnlMain.Controls.Add(lblError);
+            pnlMain.Controls.Add(btnLogin);
+            pnlMain.Controls.Add(btnCancel);
+            pnlMain.Controls.Add(lblRegisterLink); // ? Add register link
+
+            // Add main panel to form
             this.Controls.Add(pnlMain);
 
             // Enter key support
             txtEmail.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) txtPassword.Focus(); };
             txtPassword.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) BtnLogin_Click(s, e); };
+        }
+
+        // ? NEW: Event handler for register link click
+        private void LblRegisterLink_Click(object sender, EventArgs e)
+        {
+            // Open RegisterForm as a dialog
+            using (var registerForm = new RegisterForm())
+            {
+                if (registerForm.ShowDialog() == DialogResult.OK)
+                {
+                    // If registration is successful, optionally auto-fill the email
+                    // or show a success message
+                    MessageBox.Show(
+                        "Đăng ký thành công! vùi lòng đăng nhập",
+                        "Thành công",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                }
+            }
         }
 
         private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
@@ -206,14 +258,14 @@ namespace ToDoList.GUI.Forms
             // Validate input
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
             {
-                ShowError("Vui l�ng nh?p email!");
+                ShowError("Vui lòng nh?p email!");
                 txtEmail.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                ShowError("Vui l�ng nh?p m?t kh?u!");
+                ShowError("Vui lòng nhập mật khẩu");
                 txtPassword.Focus();
                 return;
             }
@@ -232,7 +284,7 @@ namespace ToDoList.GUI.Forms
 
                     if (user == null)
                     {
-                        ShowError("Email kh�ng t?n t?i!");
+                        ShowError("Email không t?n t?i!");
                         SetControlsEnabled(true);
                         return;
                     }
@@ -241,7 +293,7 @@ namespace ToDoList.GUI.Forms
                     // TODO: Implement proper password hashing in production
                     if (user.PasswordHash != txtPassword.Text.Trim())
                     {
-                        ShowError("M?t kh?u kh�ng ?�ng!");
+                        ShowError("Mật khẩu không đúc!");
                         SetControlsEnabled(true);
                         return;
                     }
@@ -249,7 +301,7 @@ namespace ToDoList.GUI.Forms
                     // Check if user is active
                     if (user.IsActive == false)
                     {
-                        ShowError("T�i kho?n ?� b? kh�a!");
+                        ShowError("Tài khoản đã bị khóa!");
                         SetControlsEnabled(true);
                         return;
                     }
@@ -263,8 +315,8 @@ namespace ToDoList.GUI.Forms
 
                     // Show success message
                     MessageBox.Show(
-                        $"Xin ch�o, {user.FullName}!\n\n??ng nh?p th�nh c�ng!",
-                        "Ch�o m?ng",
+                        $"Xin chào, {user.FullName}!\n\nĐăng nhập thành công!",
+                        "Chào mừng",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
                     );
@@ -276,7 +328,7 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                ShowError($"L?i k?t n?i: {ex.Message}");
+                ShowError($"Lỗi kết nối: {ex.Message}");
                 SetControlsEnabled(true);
             }
         }
@@ -301,8 +353,10 @@ namespace ToDoList.GUI.Forms
             btnCancel.Enabled = enabled;
             chkShowPassword.Enabled = enabled;
 
-            btnLogin.Text = enabled ? "??NG NH?P" : "?ang x? l�...";
+            btnLogin.Text = enabled ? "ĐĂNG NHẬP" : "Đang xử lý...";
             Cursor = enabled ? Cursors.Default : Cursors.WaitCursor;
         }
+
+       
     }
 }
