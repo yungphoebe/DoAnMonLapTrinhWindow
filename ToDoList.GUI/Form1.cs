@@ -128,11 +128,27 @@ namespace ToDoList.GUI
             btnAddTask.FlatAppearance.MouseOverBackColor = Color.FromArgb(100, 220, 140);
             btnAddTask.Click += BtnAddTask_Click;
             
+            // ⚙️ NEW: Settings button
+            Button btnSettings = new Button
+            {
+                Text = "⚙️ Settings",
+                Location = new Point(460, 10),
+                Size = new Size(100, 30),
+                BackColor = Color.FromArgb(127, 140, 141),
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+            btnSettings.FlatAppearance.BorderSize = 0;
+            btnSettings.FlatAppearance.MouseOverBackColor = Color.FromArgb(147, 160, 161);
+            btnSettings.Click += BtnSettings_Click;
+            
             this.Controls.Add(btnTest);
             this.Controls.Add(btnTestDB);
             this.Controls.Add(btnTestData);
             this.Controls.Add(btnReports);
             this.Controls.Add(btnAddTask);
+            this.Controls.Add(btnSettings);
             
             // ✨ NEW: Add Bottom Navigation Panel
             CreateBottomNavigationPanel();
@@ -209,10 +225,27 @@ namespace ToDoList.GUI
             btnProjects.FlatAppearance.BorderSize = 0;
             btnProjects.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
 
+            // ⚙️ NEW: Settings button in bottom nav
+            Button btnBottomSettings = new Button
+            {
+                Text = "⚙️ Cài đặt",
+                Location = new Point(510, 15),
+                Size = new Size(110, 35),
+                BackColor = Color.Transparent,
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.FromArgb(180, 180, 180),
+                Font = new Font("Segoe UI", 10F),
+                Cursor = Cursors.Hand
+            };
+            btnBottomSettings.FlatAppearance.BorderSize = 0;
+            btnBottomSettings.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
+            btnBottomSettings.Click += BtnSettings_Click;
+
             pnlBottomNav.Controls.Add(btnHome);
             pnlBottomNav.Controls.Add(btnBottomReports);
             pnlBottomNav.Controls.Add(btnTasks);
             pnlBottomNav.Controls.Add(btnProjects);
+            pnlBottomNav.Controls.Add(btnBottomSettings);
 
             this.Controls.Add(pnlBottomNav);
             pnlBottomNav.BringToFront();
@@ -227,6 +260,28 @@ namespace ToDoList.GUI
                 {
                     LoadProjectsFromDatabase();
                 }
+            }
+        }
+
+        // ⚙️ NEW: Settings button click handler
+        private void BtnSettings_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                using (var settingsForm = new Forms.SettingsForm())
+                {
+                    if (settingsForm.ShowDialog() == DialogResult.OK)
+                    {
+                        // Reload data if settings changed
+                        LoadProjectsFromDatabase();
+                        UpdateGreetingLabels();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi mở cài đặt: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -588,7 +643,7 @@ namespace ToDoList.GUI
             Panel listCard = new Panel
             {
                 Width = 320,
-                Height = 480, // Increased height to accommodate button
+                Height = 450, // ✅ FIXED: Changed from 480 to 450 to avoid validation error
                 BackColor = Color.FromArgb(35, 35, 35),
                 BorderStyle = BorderStyle.None,
                 Margin = new Padding(12),
@@ -754,11 +809,11 @@ namespace ToDoList.GUI
                 if (taskIndex > 3) break;
             }
 
-            // Footer info - improved positioning
+            // Footer info - adjusted positioning for new height
             Label lblPendingTasks = new Label
             {
                 Text = $"{pendingTasks} công việc đang chờ",
-                Location = new Point(20, 340),
+                Location = new Point(20, 310), // ✅ ADJUSTED: From 340 to 310
                 Size = new Size(160, 20),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 Font = new Font("Segoe UI", 9F),
@@ -768,7 +823,7 @@ namespace ToDoList.GUI
             Label lblEstTime = new Label
             {
                 Text = $"Dự kiến: {estimatedMinutes}ph",
-                Location = new Point(200, 340),
+                Location = new Point(200, 310), // ✅ ADJUSTED: From 340 to 310
                 Size = new Size(100, 20),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 Font = new Font("Segoe UI", 9F),
@@ -776,11 +831,11 @@ namespace ToDoList.GUI
                 BackColor = Color.Transparent
             };
 
-            // ✨ Add "Cuculist Now" button
+            // ✨ Add "Cuculist Now" button - adjusted position
             Button btnCuculist = new Button
             {
                 Text = "Cuculist Now",
-                Location = new Point(60, 380),
+                Location = new Point(60, 350), // ✅ ADJUSTED: From 380 to 350
                 Size = new Size(200, 45),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(100, 149, 237),

@@ -51,5 +51,13 @@ namespace ToDoList.GUI.Helpers
         {
             return CurrentUser?.UserId ?? 0;
         }
+
+        /// <summary>
+        /// ??ng xu?t và xóa thông tin ng??i dùng
+        /// </summary>
+        public static void Clear()
+        {
+            CurrentUser = null;
+        }
     }
 }

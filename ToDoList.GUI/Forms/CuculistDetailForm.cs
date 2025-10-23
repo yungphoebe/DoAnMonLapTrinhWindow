@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -471,7 +471,7 @@ namespace ToDoList.GUI.Forms
 
         private void BtnDoneForDay_Click(object? sender, EventArgs e)
         {
-            var result = MessageBox.Show("Ho‡n th‡nh cÙng vi?c trong ng‡y?", "X·c nh?n",
+            var result = MessageBox.Show("Ho√†n th√†nh c√¥ng vi·ªác trong ng√†y?", "X√°c nh?n",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
@@ -524,7 +524,7 @@ namespace ToDoList.GUI.Forms
                         {
                             if (taskControl is Label lblTimer && lblTimer.Name == "lblTimer")
                             {
-                                // ? FORMAT ?⁄NG: Hi?n th? gi‚y v?i 2 ch? s?
+                                // ? FORMAT ?√öNG: Hi?n th? gi√¢y v?i 2 ch? s?
                                 lblTimer.Text = string.Format("{0:00}:{1:00}:{2:00}", 
                                     (int)_elapsedTime.TotalHours,
                                     _elapsedTime.Minutes,

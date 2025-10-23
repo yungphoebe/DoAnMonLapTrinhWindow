@@ -326,7 +326,7 @@ namespace ToDoList.GUI.Forms
             this.Controls.Add(pnlChart);
         }
 
-        // ? NEW: Export button click handler
+        // Export button click handler
         private void BtnExport_Click(object? sender, EventArgs e)
         {
             // Show export options menu
@@ -337,12 +337,12 @@ namespace ToDoList.GUI.Forms
                 RenderMode = ToolStripRenderMode.Professional
             };
 
-            var pdfItem = exportMenu.Items.Add("Export to PDF");
+            var pdfItem = exportMenu.Items.Add("📄 Export to PDF");
             pdfItem.BackColor = DrawingColor.FromArgb(40, 40, 40);
             pdfItem.ForeColor = DrawingColor.White;
             pdfItem.Click += (s, args) => ExportToPDF();
 
-            var excelItem = exportMenu.Items.Add("Export to Excel");
+            var excelItem = exportMenu.Items.Add("📊 Export to Excel");
             excelItem.BackColor = DrawingColor.FromArgb(40, 40, 40);
             excelItem.ForeColor = DrawingColor.White;
             excelItem.Click += (s, args) => ExportToExcel();
@@ -605,7 +605,7 @@ namespace ToDoList.GUI.Forms
             }
         }
 
-        // ? NEW: Get statistics data
+        // ✅ NEW: Get statistics data
         private StatisticsData GetStatisticsData()
         {
             try
@@ -644,8 +644,8 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi lây dữ liệu thống kê: {ex.Message}", 
-                    "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi lấy dữ liệu thống kê: {ex.Message}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return new StatisticsData();
             }
         }
@@ -767,7 +767,7 @@ namespace ToDoList.GUI.Forms
         }
     }
 
-    // ? NEW: Statistics data class
+    // ✅ NEW: Statistics data class
     public class StatisticsData
     {
         public int TotalWorkingDays { get; set; }
