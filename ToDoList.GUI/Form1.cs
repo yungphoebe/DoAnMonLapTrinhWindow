@@ -195,41 +195,11 @@ namespace ToDoList.GUI
             btnBottomReports.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
             btnBottomReports.Click += BtnReports_Click; // ✨ USE EXISTING EVENT HANDLER
 
-            // Tasks button
-            Button btnTasks = new Button
-            {
-                Text = "📋 Công việc",
-                Location = new Point(270, 15),
-                Size = new Size(120, 35),
-                BackColor = Color.Transparent,
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.FromArgb(180, 180, 180),
-                Font = new Font("Segoe UI", 10F),
-                Cursor = Cursors.Hand
-            };
-            btnTasks.FlatAppearance.BorderSize = 0;
-            btnTasks.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
-
-            // Projects button
-            Button btnProjects = new Button
-            {
-                Text = "📁 Dự án",
-                Location = new Point(400, 15),
-                Size = new Size(100, 35),
-                BackColor = Color.Transparent,
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.FromArgb(180, 180, 180),
-                Font = new Font("Segoe UI", 10F),
-                Cursor = Cursors.Hand
-            };
-            btnProjects.FlatAppearance.BorderSize = 0;
-            btnProjects.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
-
-            // ⚙️ NEW: Settings button in bottom nav
+            // ⚙️ Settings button in bottom nav
             Button btnBottomSettings = new Button
             {
                 Text = "⚙️ Cài đặt",
-                Location = new Point(510, 15),
+                Location = new Point(270, 15),
                 Size = new Size(110, 35),
                 BackColor = Color.Transparent,
                 FlatStyle = FlatStyle.Flat,
@@ -243,8 +213,6 @@ namespace ToDoList.GUI
 
             pnlBottomNav.Controls.Add(btnHome);
             pnlBottomNav.Controls.Add(btnBottomReports);
-            pnlBottomNav.Controls.Add(btnTasks);
-            pnlBottomNav.Controls.Add(btnProjects);
             pnlBottomNav.Controls.Add(btnBottomSettings);
 
             this.Controls.Add(pnlBottomNav);

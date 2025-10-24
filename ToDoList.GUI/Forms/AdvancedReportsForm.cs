@@ -11,7 +11,7 @@ namespace ToDoList.GUI.Forms
     public partial class AdvancedReportsForm : Form
     {
         private ToDoListContext _context;
-        
+
         // UI Controls
         private Panel pnlHeader = null!;
         private TabControl tabControl = null!;
@@ -19,25 +19,34 @@ namespace ToDoList.GUI.Forms
         private Panel pnlActivity = null!;
         private Panel pnlProgress = null!;
         private Panel pnlTime = null!;
+        
+        // ✨ NEW: Project filter for activity
+        private ComboBox cmbProjectFilter = null!;
+        private int? _selectedProjectId = null;
 
         public AdvancedReportsForm(ToDoListContext context)
         {
             _context = context;
             InitializeComponent();
+            CreateHeader();
+            CreateTabs();
             LoadStatistics();
         }
 
         private void InitializeComponent()
         {
-            this.Size = new Size(1200, 800);
-            this.Text = "Thong ke nang cao - ToDoList Analytics";
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.FromArgb(20, 20, 20);
-            this.FormBorderStyle = FormBorderStyle.Sizable;
-            this.MinimumSize = new Size(1000, 600);
-
-            CreateHeader();
-            CreateTabs();
+            SuspendLayout();
+            // 
+            // AdvancedReportsForm
+            // 
+            BackColor = Color.FromArgb(20, 20, 20);
+            ClientSize = new Size(1182, 753);
+            MinimumSize = new Size(1000, 600);
+            Name = "AdvancedReportsForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Thong ke nang cao - ToDoList Analytics";
+         
+            ResumeLayout(false);
         }
 
         private void CreateHeader()
@@ -137,7 +146,7 @@ namespace ToDoList.GUI.Forms
             // Title
             Label lblOverviewTitle = new Label
             {
-       
+
                 Location = new Point(30, 20),
                 Size = new Size(300, 35),
                 Font = new Font("Segoe UI", 18F, FontStyle.Bold),
@@ -159,12 +168,12 @@ namespace ToDoList.GUI.Forms
             flowStats.Controls.Add(CreateStatCard("", "Tổng Projects", "0", "projects", Color.FromArgb(52, 152, 219)));
             flowStats.Controls.Add(CreateStatCard("", "Tổng Tasks", "0", "tasks", Color.FromArgb(46, 204, 113)));
             flowStats.Controls.Add(CreateStatCard("", "Hoàn thành", "0%", "completion", Color.FromArgb(155, 89, 182)));
-            flowStats.Controls.Add(CreateStatCard("", "Thời gian", "0h", "time spent", Color.FromArgb(230, 126, 34)));
+            flowStats.Controls.Add(CreateStatCard("", "Thời gian", "0h", "timespent", Color.FromArgb(230, 126, 34)));
 
             // ========================================
             // ROW 2: TWO SECTIONS (Activity + Progress)
             // ========================================
-            
+
             // LEFT: Activity Section
             Panel pnlActivitySection = new Panel
             {
@@ -178,11 +187,24 @@ namespace ToDoList.GUI.Forms
             {
                 Text = "📝 Hoạt động gần đây",
                 Location = new Point(20, 15),
-                Size = new Size(490, 30),
+                Size = new Size(300, 30),
                 Font = new Font("Arial", 14F, FontStyle.Bold, GraphicsUnit.Point),
                 ForeColor = Color.White,
                 BackColor = Color.Transparent
             };
+
+            // ✨ NEW: Project filter dropdown
+            cmbProjectFilter = new ComboBox
+            {
+                Location = new Point(330, 15),
+                Size = new Size(180, 30),
+                Font = new Font("Segoe UI", 9F),
+                BackColor = Color.FromArgb(40, 40, 40),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbProjectFilter.SelectedIndexChanged += CmbProjectFilter_SelectedIndexChanged;
 
             FlowLayoutPanel flowActivity = new FlowLayoutPanel
             {
@@ -196,6 +218,7 @@ namespace ToDoList.GUI.Forms
             };
 
             pnlActivitySection.Controls.Add(lblActivityTitle);
+            pnlActivitySection.Controls.Add(cmbProjectFilter);
             pnlActivitySection.Controls.Add(flowActivity);
 
             // RIGHT: Progress Section
@@ -236,8 +259,90 @@ namespace ToDoList.GUI.Forms
             pnlOverview.Controls.Add(flowStats);
             pnlOverview.Controls.Add(pnlActivitySection);
             pnlOverview.Controls.Add(pnlProgressSection);
-            
+
             tab.Controls.Add(pnlOverview);
+        }
+
+        // ✨ MODIFIED: Event handler for project filter - now updates everything
+        private async void CmbProjectFilter_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (cmbProjectFilter.SelectedIndex == 0) // "Tất cả dự án"
+            {
+                _selectedProjectId = null;
+            }
+            else if (cmbProjectFilter.SelectedItem is ComboBoxProjectItem item)
+            {
+                _selectedProjectId = item.ProjectId;
+            }
+            
+            // ✨ UPDATE: Reload all statistics when project changes
+            await UpdateStatisticsForSelectedProject();
+            await LoadRecentActivity();
+            await LoadProjectProgressOverview();
+        }
+
+        // ✨ NEW: Update statistics based on selected project
+        private async System.Threading.Tasks.Task UpdateStatisticsForSelectedProject()
+        {
+            try
+            {
+                if (_selectedProjectId.HasValue)
+                {
+                    // Get statistics for selected project only
+                    var project = await _context.Projects
+                        .Include(p => p.Tasks.Where(t => t.IsDeleted != true))
+                        .FirstOrDefaultAsync(p => p.ProjectId == _selectedProjectId.Value);
+
+                    if (project != null)
+                    {
+                        var tasks = project.Tasks.ToList();
+                        var totalTasks = tasks.Count;
+                        var completedTasks = tasks.Count(t => t.Status == "Completed");
+                        var completionRate = totalTasks > 0 ? (double)completedTasks / totalTasks * 100 : 0;
+                        var totalMinutes = tasks.Sum(t => t.EstimatedMinutes ?? 0);
+                        var totalHours = totalMinutes / 60.0;
+
+                        // Update stat cards for selected project
+                        UpdateStatCard("projects", "1"); // Only 1 project selected
+                        UpdateStatCard("tasks", totalTasks.ToString());
+                        UpdateStatCard("completion", $"{completionRate:F0}%");
+                        UpdateStatCard("timespent", $"{totalHours:F1}h");
+                    }
+                }
+                else
+                {
+                    // Show all projects statistics
+                    var totalProjects = await _context.Projects
+                        .Where(p => p.IsArchived != true)
+                        .CountAsync();
+
+                    var totalTasks = await _context.Tasks
+                        .Where(t => t.IsDeleted != true)
+                        .CountAsync();
+
+                    var completedTasks = await _context.Tasks
+                        .Where(t => t.IsDeleted != true && t.Status == "Completed")
+                        .CountAsync();
+
+                    var completionRate = totalTasks > 0 ? (double)completedTasks / totalTasks * 100 : 0;
+
+                    var totalMinutes = await _context.Tasks
+                        .Where(t => t.IsDeleted != true)
+                        .SumAsync(t => t.EstimatedMinutes ?? 0);
+                    var totalHours = totalMinutes / 60.0;
+
+                    // Update stat cards for all projects
+                    UpdateStatCard("projects", totalProjects.ToString());
+                    UpdateStatCard("tasks", totalTasks.ToString());
+                    UpdateStatCard("completion", $"{completionRate:F0}%");
+                    UpdateStatCard("timespent", $"{totalHours:F1}h");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi cập nhật thống kê: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private Panel CreateStatCard(string icon, string label, string value, string subtitle, Color color)
@@ -397,6 +502,9 @@ namespace ToDoList.GUI.Forms
         {
             try
             {
+                // Load project filter dropdown
+                await LoadProjectFilter();
+
                 // Get total projects
                 var totalProjects = await _context.Projects
                     .Where(p => p.IsArchived != true)
@@ -429,17 +537,47 @@ namespace ToDoList.GUI.Forms
 
                 // Load recent activity
                 await LoadRecentActivity();
-                
+
                 // Load project progress overview
                 await LoadProjectProgressOverview();
-                
+
                 // Load full project progress (for Progress tab)
                 await LoadProjectProgress();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ỗi thống kê: {ex.Message}", "Loi",
+                MessageBox.Show($"Lỗi thống kê: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // ✨ NEW: Load project filter dropdown
+        private async System.Threading.Tasks.Task LoadProjectFilter()
+        {
+            try
+            {
+                cmbProjectFilter.Items.Clear();
+                cmbProjectFilter.Items.Add("Tất cả dự án");
+
+                var projects = await _context.Projects
+                    .Where(p => p.IsArchived != true)
+                    .OrderBy(p => p.ProjectName)
+                    .ToListAsync();
+
+                foreach (var project in projects)
+                {
+                    cmbProjectFilter.Items.Add(new ComboBoxProjectItem
+                    {
+                        ProjectId = project.ProjectId,
+                        ProjectName = project.ProjectName ?? "Unnamed Project"
+                    });
+                }
+
+                cmbProjectFilter.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                // Silently handle errors
             }
         }
 
@@ -484,7 +622,7 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi  tiến độ: {ex.Message}", "Loi",
+                MessageBox.Show($"Lỗi tiến độ: {ex.Message}", "Loi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -579,7 +717,7 @@ namespace ToDoList.GUI.Forms
                 return "N/A";
 
             var timeSpan = DateTime.Now - dateTime.Value;
-            
+
             if (timeSpan.TotalMinutes < 1) return "bây giờ";
             if (timeSpan.TotalMinutes < 60) return $"{(int)timeSpan.TotalMinutes}m";
             if (timeSpan.TotalHours < 24) return $"{(int)timeSpan.TotalHours}h";
@@ -619,12 +757,39 @@ namespace ToDoList.GUI.Forms
 
                 activityFlow.Controls.Clear();
 
-                var recentTasks = await _context.Tasks
-                    .Where(t => t.IsDeleted != true)
+                // ✨ MODIFIED: Filter by selected project
+                var query = _context.Tasks
+                    .Where(t => t.IsDeleted != true);
+
+                if (_selectedProjectId.HasValue)
+                {
+                    query = query.Where(t => t.ProjectId == _selectedProjectId.Value);
+                }
+
+                var recentTasks = await query
                     .OrderByDescending(t => t.CreatedAt)
                     .Take(8)
                     .Include(t => t.Project)
                     .ToListAsync();
+
+                if (!recentTasks.Any())
+                {
+                    // Show "no data" message
+                    Label lblNoData = new Label
+                    {
+                        Text = _selectedProjectId.HasValue 
+                            ? "Không có hoạt động trong danh sách này" 
+                            : "Chưa có hoạt động nào",
+                        Location = new Point(10, 50),
+                        Size = new Size(470, 60),
+                        Font = new Font("Arial", 11F, FontStyle.Italic),
+                        ForeColor = Color.FromArgb(120, 120, 120),
+                        BackColor = Color.Transparent,
+                        TextAlign = ContentAlignment.MiddleCenter
+                    };
+                    activityFlow.Controls.Add(lblNoData);
+                    return;
+                }
 
                 foreach (var task in recentTasks)
                 {
@@ -712,11 +877,40 @@ namespace ToDoList.GUI.Forms
 
                 progressFlow.Controls.Clear();
 
-                var projects = await _context.Projects
+                // ✨ FILTER: Get projects based on selection
+                IQueryable<Project> query = _context.Projects
                     .Where(p => p.IsArchived != true)
-                    .Include(p => p.Tasks.Where(t => t.IsDeleted != true))
-                    .Take(6)  // Only show top 6 in overview
-                    .ToListAsync();
+                    .Include(p => p.Tasks.Where(t => t.IsDeleted != true));
+
+                if (_selectedProjectId.HasValue)
+                {
+                    // Show only selected project
+                    query = query.Where(p => p.ProjectId == _selectedProjectId.Value);
+                }
+                else
+                {
+                    // Show top 6 projects
+                    query = query.Take(6);
+                }
+
+                var projects = await query.ToListAsync();
+
+                if (!projects.Any())
+                {
+                    // Show "no data" message
+                    Label lblNoData = new Label
+                    {
+                        Text = "Không có dữ liệu",
+                        Location = new Point(10, 50),
+                        Size = new Size(490, 60),
+                        Font = new Font("Arial", 11F, FontStyle.Italic),
+                        ForeColor = Color.FromArgb(120, 120, 120),
+                        BackColor = Color.Transparent,
+                        TextAlign = ContentAlignment.MiddleCenter
+                    };
+                    progressFlow.Controls.Add(lblNoData);
+                    return;
+                }
 
                 foreach (var project in projects)
                 {
@@ -809,5 +1003,19 @@ namespace ToDoList.GUI.Forms
 
             return container;
         }
+
+      
     }
 }
+
+    // ✨ NEW: ComboBox item class for projects
+    public class ComboBoxProjectItem
+    {
+        public int ProjectId { get; set; }
+        public string ProjectName { get; set; } = "";
+
+        public override string ToString()
+        {
+            return ProjectName;
+        }
+    }

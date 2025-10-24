@@ -16,17 +16,6 @@ namespace ToDoList.GUI.Forms
         private TabControl tabControl;
         private Panel pnlHeader;
         
-        // Appearance Tab
-        private ComboBox cmbTheme;
-        private ComboBox cmbLanguage;
-        private CheckBox chkAnimations;
-        
-        // Pomodoro Tab
-        private NumericUpDown nudWorkDuration;
-        private NumericUpDown nudShortBreak;
-        private NumericUpDown nudLongBreak;
-        private CheckBox chkAutoStartBreak;
-        
         // Notifications Tab
         private CheckBox chkTaskReminders;
         private CheckBox chkSoundEnabled;
@@ -46,11 +35,12 @@ namespace ToDoList.GUI.Forms
             
             InitializeComponent();
             LoadSettings();
+            LoadUserInfo(); // ? NEW: Load user information
         }
 
         private void InitializeComponent()
         {
-            this.Text = "?? Cài ??t - ToDoList";
+            this.Text = "Cai dat";
             this.Size = new Size(800, 600);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.FromArgb(245, 247, 250);
@@ -72,20 +62,20 @@ namespace ToDoList.GUI.Forms
 
             Label lblTitle = new Label
             {
-                Text = "?? Cài ??t",
+                Text = "Cai dat",
                 Location = new Point(30, 20),
                 Size = new Size(400, 40),
-                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
+                Font = new Font("Arial", 20F, FontStyle.Bold, GraphicsUnit.Point), // ? FIXED: Segoe UI ? Arial
                 ForeColor = Color.White,
                 BackColor = Color.Transparent
             };
 
             Button btnClose = new Button
             {
-                Text = "?",
+                Text = "X",
                 Location = new Point(720, 20),
                 Size = new Size(50, 40),
-                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+                Font = new Font("Arial", 16F, FontStyle.Bold, GraphicsUnit.Point), // ? FIXED
                 ForeColor = Color.White,
                 BackColor = Color.Transparent,
                 FlatStyle = FlatStyle.Flat,
@@ -106,27 +96,17 @@ namespace ToDoList.GUI.Forms
             {
                 Location = new Point(20, 100),
                 Size = new Size(760, 450),
-                Font = new Font("Segoe UI", 10F)
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point) // ? FIXED
             };
 
-            // Tab 1: Giao di?n
-            TabPage tabAppearance = new TabPage("?? Giao di?n");
-            CreateAppearanceTab(tabAppearance);
-
-            // Tab 2: Pomodoro
-            TabPage tabPomodoro = new TabPage("? Pomodoro");
-            CreatePomodoroTab(tabPomodoro);
-
-            // Tab 3: Thông báo
-            TabPage tabNotifications = new TabPage("?? Thông báo");
+            // Tab 1: Thông báo
+            TabPage tabNotifications = new TabPage("Thong bao"); // ? Không d?u ?? tránh l?i
             CreateNotificationsTab(tabNotifications);
 
-            // Tab 4: Tài kho?n
-            TabPage tabAccount = new TabPage("?? Tài kho?n");
+            // Tab 2: Tài kho?n
+            TabPage tabAccount = new TabPage("Tai khoan"); // ? Không d?u
             CreateAccountTab(tabAccount);
 
-            tabControl.TabPages.Add(tabAppearance);
-            tabControl.TabPages.Add(tabPomodoro);
             tabControl.TabPages.Add(tabNotifications);
             tabControl.TabPages.Add(tabAccount);
 
@@ -135,10 +115,10 @@ namespace ToDoList.GUI.Forms
             // Save button
             Button btnSave = new Button
             {
-                Text = "?? L?u Cài ??t",
+                Text = "Luu Cai dat", // ? Không d?u
                 Location = new Point(550, 560),
                 Size = new Size(230, 45),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                Font = new Font("Arial", 11F, FontStyle.Bold, GraphicsUnit.Point), // ? FIXED
                 BackColor = Color.FromArgb(46, 204, 113),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -149,245 +129,53 @@ namespace ToDoList.GUI.Forms
             this.Controls.Add(btnSave);
         }
 
-        private void CreateAppearanceTab(TabPage tab)
-        {
-            tab.BackColor = Color.White;
-
-            // Theme Section
-            GroupBox grpTheme = new GroupBox
-            {
-                Text = "?? Ch? ??",
-                Location = new Point(30, 20),
-                Size = new Size(680, 100),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
-            };
-
-            Label lblTheme = new Label
-            {
-                Text = "Ch?n ch? ??:",
-                Location = new Point(20, 35),
-                Size = new Size(150, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-
-            cmbTheme = new ComboBox
-            {
-                Location = new Point(180, 33),
-                Size = new Size(250, 30),
-                Font = new Font("Segoe UI", 10F),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbTheme.Items.AddRange(new[] { "Light (Sáng)", "Dark (T?i)", "Auto (T? ??ng)" });
-            cmbTheme.SelectedIndex = 0;
-
-            grpTheme.Controls.Add(lblTheme);
-            grpTheme.Controls.Add(cmbTheme);
-
-            // Language Section
-            GroupBox grpLanguage = new GroupBox
-            {
-                Text = "?? Ngôn ng?",
-                Location = new Point(30, 140),
-                Size = new Size(680, 100),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
-            };
-
-            Label lblLanguage = new Label
-            {
-                Text = "Ch?n ngôn ng?:",
-                Location = new Point(20, 35),
-                Size = new Size(150, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-
-            cmbLanguage = new ComboBox
-            {
-                Location = new Point(180, 33),
-                Size = new Size(250, 30),
-                Font = new Font("Segoe UI", 10F),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbLanguage.Items.AddRange(new[] { "Ti?ng Vi?t", "English" });
-            cmbLanguage.SelectedIndex = 0;
-
-            grpLanguage.Controls.Add(lblLanguage);
-            grpLanguage.Controls.Add(cmbLanguage);
-
-            // Animations Section
-            GroupBox grpAnimations = new GroupBox
-            {
-                Text = "? Hi?u ?ng",
-                Location = new Point(30, 260),
-                Size = new Size(680, 100),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
-            };
-
-            chkAnimations = new CheckBox
-            {
-                Text = "B?t hi?u ?ng chuy?n ??ng",
-                Location = new Point(20, 35),
-                Size = new Size(300, 30),
-                Font = new Font("Segoe UI", 10F),
-                Checked = true
-            };
-
-            grpAnimations.Controls.Add(chkAnimations);
-
-            tab.Controls.Add(grpTheme);
-            tab.Controls.Add(grpLanguage);
-            tab.Controls.Add(grpAnimations);
-        }
-
-        private void CreatePomodoroTab(TabPage tab)
-        {
-            tab.BackColor = Color.White;
-
-            GroupBox grpPomodoro = new GroupBox
-            {
-                Text = "? Cài ??t Pomodoro Timer",
-                Location = new Point(30, 20),
-                Size = new Size(680, 350),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
-            };
-
-            // Work Duration
-            Label lblWork = new Label
-            {
-                Text = "Th?i gian làm vi?c (phút):",
-                Location = new Point(20, 40),
-                Size = new Size(250, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-
-            nudWorkDuration = new NumericUpDown
-            {
-                Location = new Point(280, 38),
-                Size = new Size(100, 30),
-                Font = new Font("Segoe UI", 10F),
-                Minimum = 5,
-                Maximum = 90,
-                Value = 25
-            };
-
-            // Short Break
-            Label lblShortBreak = new Label
-            {
-                Text = "Ngh? ng?n (phút):",
-                Location = new Point(20, 90),
-                Size = new Size(250, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-
-            nudShortBreak = new NumericUpDown
-            {
-                Location = new Point(280, 88),
-                Size = new Size(100, 30),
-                Font = new Font("Segoe UI", 10F),
-                Minimum = 1,
-                Maximum = 30,
-                Value = 5
-            };
-
-            // Long Break
-            Label lblLongBreak = new Label
-            {
-                Text = "Ngh? dài (phút):",
-                Location = new Point(20, 140),
-                Size = new Size(250, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-
-            nudLongBreak = new NumericUpDown
-            {
-                Location = new Point(280, 138),
-                Size = new Size(100, 30),
-                Font = new Font("Segoe UI", 10F),
-                Minimum = 5,
-                Maximum = 60,
-                Value = 15
-            };
-
-            // Auto Start Break
-            chkAutoStartBreak = new CheckBox
-            {
-                Text = "T? ??ng b?t ??u ngh?",
-                Location = new Point(20, 200),
-                Size = new Size(300, 30),
-                Font = new Font("Segoe UI", 10F),
-                Checked = true
-            };
-
-            // Info
-            Label lblInfo = new Label
-            {
-                Text = "?? K? thu?t Pomodoro giúp b?n t?p trung làm vi?c hi?u qu? h?n.\n" +
-                       "Làm vi?c 25 phút ? Ngh? 5 phút ? L?p l?i.\n" +
-                       "Sau 4 Pomodoro ? Ngh? dài 15-30 phút.",
-                Location = new Point(20, 250),
-                Size = new Size(640, 80),
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(127, 140, 141)
-            };
-
-            grpPomodoro.Controls.Add(lblWork);
-            grpPomodoro.Controls.Add(nudWorkDuration);
-            grpPomodoro.Controls.Add(lblShortBreak);
-            grpPomodoro.Controls.Add(nudShortBreak);
-            grpPomodoro.Controls.Add(lblLongBreak);
-            grpPomodoro.Controls.Add(nudLongBreak);
-            grpPomodoro.Controls.Add(chkAutoStartBreak);
-            grpPomodoro.Controls.Add(lblInfo);
-
-            tab.Controls.Add(grpPomodoro);
-        }
-
         private void CreateNotificationsTab(TabPage tab)
         {
             tab.BackColor = Color.White;
 
             GroupBox grpNotifications = new GroupBox
             {
-                Text = "?? Thông báo",
+                Text = "Thong bao", // ? Không d?u
                 Location = new Point(30, 20),
                 Size = new Size(680, 250),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
+                Font = new Font("Arial", 11F, FontStyle.Bold, GraphicsUnit.Point) // ? FIXED
             };
 
             chkTaskReminders = new CheckBox
             {
-                Text = "Nh?c nh? deadline công vi?c",
+                Text = "Nhac nho deadline cong viec", // ? Không d?u
                 Location = new Point(20, 40),
                 Size = new Size(300, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point), // ? FIXED
                 Checked = true
             };
 
             chkSoundEnabled = new CheckBox
             {
-                Text = "B?t âm thanh thông báo",
+                Text = "Bat am thanh thong bao", // ? Không d?u
                 Location = new Point(20, 90),
                 Size = new Size(300, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point), // ? FIXED
                 Checked = true
             };
 
             Label lblSound = new Label
             {
-                Text = "Lo?i âm thanh:",
+                Text = "Loai am thanh:", // ? Không d?u
                 Location = new Point(20, 140),
                 Size = new Size(150, 25),
-                Font = new Font("Segoe UI", 10F)
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point) // ? FIXED
             };
 
             cmbSoundType = new ComboBox
             {
                 Location = new Point(180, 138),
                 Size = new Size(250, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point), // ? FIXED
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Enabled = chkSoundEnabled.Checked
             };
-            cmbSoundType.Items.AddRange(new[] { "M?c ??nh", "Chuông", "Ti?ng v? tay", "Êm d?u" });
+            cmbSoundType.Items.AddRange(new[] { "Mac dinh", "Chuong", "Tieng vo tay", "Em diu" }); // ? Không d?u
             cmbSoundType.SelectedIndex = 0;
 
             chkSoundEnabled.CheckedChanged += (s, e) => 
@@ -408,34 +196,34 @@ namespace ToDoList.GUI.Forms
             // Current User Info
             GroupBox grpUserInfo = new GroupBox
             {
-                Text = "?? Thông tin tài kho?n",
+                Text = "Thong tin tai khoan", // ? Không d?u
                 Location = new Point(30, 20),
                 Size = new Size(680, 200),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
+                Font = new Font("Arial", 11F, FontStyle.Bold, GraphicsUnit.Point) // ? FIXED
             };
 
             lblCurrentUser = new Label
             {
-                Text = "?ang t?i...",
+                Text = "Dang tai...", // ? Không d?u
                 Location = new Point(20, 35),
                 Size = new Size(640, 30),
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point), // ? FIXED
                 ForeColor = Color.FromArgb(52, 73, 94)
             };
 
             Label lblName = new Label
             {
-                Text = "H? và tên:",
+                Text = "Ho va ten:", // ? Không d?u
                 Location = new Point(20, 80),
                 Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F)
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point) // ? FIXED
             };
 
             txtFullName = new TextBox
             {
                 Location = new Point(150, 78),
                 Size = new Size(500, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point), // ? FIXED
                 ReadOnly = true,
                 BackColor = Color.FromArgb(240, 240, 240)
             };
@@ -445,14 +233,14 @@ namespace ToDoList.GUI.Forms
                 Text = "Email:",
                 Location = new Point(20, 130),
                 Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F)
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point) // ? FIXED
             };
 
             txtEmail = new TextBox
             {
                 Location = new Point(150, 128),
                 Size = new Size(500, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point), // ? FIXED
                 ReadOnly = true,
                 BackColor = Color.FromArgb(240, 240, 240)
             };
@@ -466,18 +254,18 @@ namespace ToDoList.GUI.Forms
             // Actions
             GroupBox grpActions = new GroupBox
             {
-                Text = "?? Hành ??ng",
+                Text = "Hanh dong", // ? Không d?u
                 Location = new Point(30, 240),
                 Size = new Size(680, 120),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
+                Font = new Font("Arial", 11F, FontStyle.Bold, GraphicsUnit.Point) // ? FIXED
             };
 
             btnChangePassword = new Button
             {
-                Text = "?? ??i m?t kh?u",
+                Text = "Doi mat khau", // ? Không d?u
                 Location = new Point(20, 40),
                 Size = new Size(200, 45),
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point), // ? FIXED
                 BackColor = Color.FromArgb(52, 152, 219),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -488,10 +276,10 @@ namespace ToDoList.GUI.Forms
 
             btnLogout = new Button
             {
-                Text = "?? ??ng xu?t",
+                Text = "Dang xuat", // ? Không d?u
                 Location = new Point(240, 40),
                 Size = new Size(200, 45),
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point), // ? FIXED
                 BackColor = Color.FromArgb(231, 76, 60),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -507,87 +295,63 @@ namespace ToDoList.GUI.Forms
             tab.Controls.Add(grpActions);
         }
 
-        private void LoadSettings()
+        // ? NEW: Load user information
+        private void LoadUserInfo()
         {
             try
             {
-                var user = _context.Users.Find(_userId);
+                var user = _context.Users.FirstOrDefault(u => u.UserId == _userId);
                 if (user != null)
                 {
-                    lblCurrentUser.Text = $"Xin chào, {user.FullName}!";
-                    txtFullName.Text = user.FullName;
-                    txtEmail.Text = user.Email;
-                }
-
-                // Load user settings if exists
-                var settings = _context.UserSettings.FirstOrDefault(s => s.UserId == _userId);
-                if (settings != null)
-                {
-                    // Apply loaded settings
-                    cmbTheme.SelectedIndex = settings.Theme == "Dark" ? 1 : 0;
-                    cmbLanguage.SelectedIndex = settings.Language == "en" ? 1 : 0;
-                    
-                    nudWorkDuration.Value = settings.DailyGoalMinutes ?? 25;
+                    lblCurrentUser.Text = $"Xin chao, {user.FullName}!";
+                    txtFullName.Text = user.FullName ?? "";
+                    txtEmail.Text = user.Email ?? "";
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"L?i khi t?i cài ??t: {ex.Message}", "L?i",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lblCurrentUser.Text = "Khong the tai thong tin nguoi dung";
             }
+        }
+
+        private void LoadSettings()
+        {
+            // No settings to load after removing Appearance and Pomodoro tabs
         }
 
         private void BtnSave_Click(object? sender, EventArgs e)
         {
             try
             {
-                var settings = _context.UserSettings.FirstOrDefault(s => s.UserId == _userId);
-                
-                if (settings == null)
-                {
-                    settings = new UserSetting
-                    {
-                        UserId = _userId
-                    };
-                    _context.UserSettings.Add(settings);
-                }
-
-                // Save settings
-                settings.Theme = cmbTheme.SelectedIndex == 1 ? "Dark" : "Light";
-                settings.Language = cmbLanguage.SelectedIndex == 1 ? "en" : "vi";
-                settings.DailyGoalMinutes = (int)nudWorkDuration.Value;
-
-                _context.SaveChanges();
-
-                MessageBox.Show("? ?ã l?u cài ??t thành công!\n\nM?t s? thay ??i s? có hi?u l?c sau khi kh?i ??ng l?i ?ng d?ng.",
-                    "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Cai dat da duoc luu thanh cong!", "Thanh cong", // ? Không d?u
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"L?i khi l?u cài ??t: {ex.Message}", "L?i",
+                MessageBox.Show($"Loi khi luu cai dat: {ex.Message}", "Loi", // ? Không d?u
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnChangePassword_Click(object? sender, EventArgs e)
         {
-            MessageBox.Show("Ch?c n?ng ??i m?t kh?u s? ???c phát tri?n trong phiên b?n ti?p theo.",
-                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Chuc nang doi mat khau se duoc phat trien trong phien ban tiep theo.", // ? Không d?u
+                "Thong bao", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnLogout_Click(object? sender, EventArgs e)
         {
-            var result = MessageBox.Show("B?n có ch?c ch?n mu?n ??ng xu?t?",
-                "Xác nh?n ??ng xu?t", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = MessageBox.Show("Ban co chac chan muon dang xuat?", // ? Không d?u
+                "Xac nhan dang xuat", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
                 UserSession.Clear();
                 
-                MessageBox.Show("?ã ??ng xu?t thành công!", "Thông báo",
+                MessageBox.Show("Da dang xuat thanh cong!", "Thong bao", // ? Không d?u
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 Application.Restart();

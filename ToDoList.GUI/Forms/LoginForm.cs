@@ -164,7 +164,7 @@ namespace ToDoList.GUI.Forms
             // Cancel button
             btnCancel = new Button
             {
-                Text = "HAY",
+                Text = "HỦY",
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 ForeColor = Color.FromArgb(52, 73, 94),
                 BackColor = Color.FromArgb(236, 240, 241),

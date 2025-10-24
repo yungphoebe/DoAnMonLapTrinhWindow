@@ -13,6 +13,7 @@ using iText.Kernel.Font;
 using iText.IO.Font.Constants;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using ToDoList.GUI.Helpers;
 
 // Use alias to avoid conflicts
 using DrawingColor = System.Drawing.Color;
@@ -30,15 +31,18 @@ namespace ToDoList.GUI.Forms
         private ComboBox cmbMonth;
         private ComboBox cmbDay;
         private Button btnUpdate;
-        
-        // ? NEW: Export button
         private Button btnExport;
+        
+        // ✅ NEW: Store current statistics
+        private StatisticsData _currentStats;
+        private int _userId;
 
         public ReportsForm(ToDoListContext context)
         {
             _context = context;
+            _userId = UserSession.GetUserId();
             
-            // ? Set EPPlus license context
+            // Set EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             
             InitializeComponent();
@@ -48,7 +52,7 @@ namespace ToDoList.GUI.Forms
 
         private void InitializeComponent()
         {
-            this.Text = "?? Báo cáo thống kê- ToDoList";
+            this.Text = "Bao cao thong ke - ToDoList";
             this.Size = new Size(1200, 700);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = DrawingColor.FromArgb(20, 20, 20);
@@ -68,7 +72,7 @@ namespace ToDoList.GUI.Forms
                 Text = "BACK",
                 Location = new Point(20, 20),
                 Size = new Size(80, 25),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 ForeColor = DrawingColor.Gray,
                 Cursor = Cursors.Hand
             };
@@ -79,57 +83,31 @@ namespace ToDoList.GUI.Forms
                 Text = "Reports",
                 Location = new Point(450, 15),
                 Size = new Size(200, 35),
-                Font = new Font("Segoe UI", 18F, FontStyle.Bold),
+                Font = new Font("Arial", 18F, FontStyle.Bold, GraphicsUnit.Point),
                 ForeColor = DrawingColor.White,
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
             Button btnUpgrade = new Button
             {
-                Text = "? update",
+                Text = "Cap nhat",
                 Location = new Point(900, 20),
                 Size = new Size(100, 35),
                 BackColor = DrawingColor.FromArgb(100, 200, 150),
                 ForeColor = DrawingColor.Black,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point),
                 Cursor = Cursors.Hand
             };
             btnUpgrade.FlatAppearance.BorderSize = 0;
 
-            Button btnHelp = new Button
-            {
-                Text = "?",
-                Location = new Point(1020, 20),
-                Size = new Size(40, 35),
-                BackColor = DrawingColor.FromArgb(40, 40, 40),
-                ForeColor = DrawingColor.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnHelp.FlatAppearance.BorderSize = 0;
-
-            Button btnUser = new Button
-            {
-                Text = "D",
-                Location = new Point(1100, 20),
-                Size = new Size(40, 35),
-                BackColor = DrawingColor.FromArgb(100, 149, 237),
-                ForeColor = DrawingColor.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnUser.FlatAppearance.BorderSize = 0;
-
             // ===== FILTERS ROW =====
             Label lblFilter = new Label
             {
-                Text = "?? Tất cả dự án",
+                Text = "Tat ca du an",
                 Location = new Point(20, 70),
                 Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 ForeColor = DrawingColor.Gray
             };
 
@@ -137,19 +115,21 @@ namespace ToDoList.GUI.Forms
             {
                 Location = new Point(20, 95),
                 Size = new Size(160, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 BackColor = DrawingColor.FromArgb(40, 40, 40),
                 ForeColor = DrawingColor.White,
                 FlatStyle = FlatStyle.Flat,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
+            // ✅ NEW: Add event handler for project selection change
+            cmbProject.SelectedIndexChanged += CmbProject_SelectedIndexChanged;
 
             Label lblQuestion = new Label
             {
                 Text = "?",
                 Location = new Point(190, 95),
                 Size = new Size(20, 25),
-                Font = new Font("Segoe UI", 12F),
+                Font = new Font("Arial", 12F, FontStyle.Regular, GraphicsUnit.Point),
                 ForeColor = DrawingColor.Gray
             };
 
@@ -157,19 +137,20 @@ namespace ToDoList.GUI.Forms
             {
                 Location = new Point(250, 95),
                 Size = new Size(120, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 BackColor = DrawingColor.FromArgb(40, 40, 40),
                 ForeColor = DrawingColor.White,
                 FlatStyle = FlatStyle.Flat,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
+            cmbMonth.SelectedIndexChanged += (s, e) => LoadData();
 
             Label lblDash = new Label
             {
                 Text = "-",
                 Location = new Point(380, 95),
                 Size = new Size(20, 25),
-                Font = new Font("Segoe UI", 14F),
+                Font = new Font("Arial", 14F, FontStyle.Regular, GraphicsUnit.Point),
                 ForeColor = DrawingColor.Gray
             };
 
@@ -178,7 +159,7 @@ namespace ToDoList.GUI.Forms
                 Text = "ay,",
                 Location = new Point(400, 95),
                 Size = new Size(30, 25),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 ForeColor = DrawingColor.Gray
             };
 
@@ -186,12 +167,13 @@ namespace ToDoList.GUI.Forms
             {
                 Location = new Point(440, 95),
                 Size = new Size(100, 30),
-                Font = new Font("Segoe UI", 10F),
+                Font = new Font("Arial", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 BackColor = DrawingColor.FromArgb(100, 149, 237),
                 ForeColor = DrawingColor.White,
                 FlatStyle = FlatStyle.Flat,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
+            cmbDay.SelectedIndexChanged += (s, e) => LoadData();
 
             btnUpdate = new Button
             {
@@ -201,22 +183,21 @@ namespace ToDoList.GUI.Forms
                 BackColor = DrawingColor.FromArgb(100, 149, 237),
                 ForeColor = DrawingColor.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point),
                 Cursor = Cursors.Hand
             };
             btnUpdate.FlatAppearance.BorderSize = 0;
             btnUpdate.Click += (s, e) => LoadData();
 
-            // ? NEW: Export button
             btnExport = new Button
             {
-                Text = " Export",
+                Text = "Export",
                 Location = new Point(660, 90),
                 Size = new Size(100, 35),
                 BackColor = DrawingColor.FromArgb(80, 200, 120),
                 ForeColor = DrawingColor.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Font = new Font("Arial", 10F, FontStyle.Bold, GraphicsUnit.Point),
                 Cursor = Cursors.Hand
             };
             btnExport.FlatAppearance.BorderSize = 0;
@@ -225,18 +206,18 @@ namespace ToDoList.GUI.Forms
 
             Label lblTime = new Label
             {
-                Text = "?? Mui gio: " + DateTime.Now.ToString("ddd, dd MMM HH:mm tt"),
+                Text = "Mui gio: " + DateTime.Now.ToString("ddd, dd MMM HH:mm tt"),
                 Location = new Point(900, 95),
                 Size = new Size(250, 25),
-                Font = new Font("Segoe UI", 9F),
+                Font = new Font("Arial", 9F, FontStyle.Regular, GraphicsUnit.Point),
                 ForeColor = DrawingColor.Gray,
                 TextAlign = ContentAlignment.MiddleRight
             };
 
             pnlHeader.Controls.AddRange(new Control[] {
-                lblBack, lblTitle, btnUpgrade, btnHelp, btnUser,
+                lblBack, lblTitle, btnUpgrade,
                 lblFilter, cmbProject, lblQuestion, cmbMonth, lblDash, lblAy, cmbDay, 
-                btnUpdate, btnExport, lblTime  // ? Added btnExport
+                btnUpdate, btnExport, lblTime
             });
 
             // ===== STATS PANEL =====
@@ -247,60 +228,8 @@ namespace ToDoList.GUI.Forms
                 BackColor = DrawingColor.FromArgb(20, 20, 20)
             };
 
-            // Stats boxes
-            var stats = new[]  {
-                new { Label = "TỔNG SỐ TASK NGÀY LÀM", Value = "23 ngày", SubText = (string?)null, X = 50 },
-                new { Label = "TASK HOÀN THÀNH", Value = "03/17", SubText = (string?)"0.1 / ngày", X = 300 },
-                new { Label = "TỔNG GIỜ LÀM VIỆC", Value = "87h", SubText = (string?)"3.8h / ngày", X = 590 },
-                new { Label = "THỜI GIAN TB/TASK", Value = "348 phút", SubText = (string?)"17.6% hoàn thành", X = 900 }
-            };
-
-            foreach (var stat in stats)
-            {
-                Panel statBox = new Panel
-                {
-                    Location = new Point(stat.X, 20),
-                    Size = new Size(250, 70),
-                    BackColor = DrawingColor.FromArgb(30, 30, 30)
-                };
-
-                Label lblStat = new Label
-                {
-                    Text = stat.Label,
-                    Location = new Point(10, 10),
-                    Size = new Size(230, 20),
-                    Font = new Font("Segoe UI", 8F),
-                    ForeColor = DrawingColor.Gray
-                };
-
-                Label lblValue = new Label
-                {
-                    Text = stat.Value,
-                    Location = new Point(10, 30),
-                    Size = new Size(150, 25),
-                    Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                    ForeColor = DrawingColor.White
-                };
-
-                statBox.Controls.Add(lblStat);
-                statBox.Controls.Add(lblValue);
-
-                if (!string.IsNullOrEmpty(stat.SubText))
-                {
-                    Label lblSub = new Label
-                    {
-                        Text = stat.SubText,
-                        Location = new Point(160, 35),
-                        Size = new Size(80, 20),
-                        Font = new Font("Segoe UI", 7F),
-                        ForeColor = DrawingColor.Gray,
-                        TextAlign = ContentAlignment.MiddleRight
-                    };
-                    statBox.Controls.Add(lblSub);
-                }
-
-                pnlStats.Controls.Add(statBox);
-            }
+            // ✅ MODIFIED: Will be dynamically updated
+            UpdateStatsPanel();
 
             // ===== CHART PANEL =====
             pnlChart = new Panel
@@ -313,10 +242,10 @@ namespace ToDoList.GUI.Forms
 
             Label lblAdvanced = new Label
             {
-                Text = "Tiến độ theo",
+                Text = "Tien do theo ngay",
                 Location = new Point(20, 10),
-                Size = new Size(150, 25),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                Size = new Size(200, 25),
+                Font = new Font("Arial", 11F, FontStyle.Bold, GraphicsUnit.Point),
                 ForeColor = DrawingColor.White
             };
             pnlChart.Controls.Add(lblAdvanced);
@@ -326,10 +255,79 @@ namespace ToDoList.GUI.Forms
             this.Controls.Add(pnlChart);
         }
 
-        // Export button click handler
+        // ✅ NEW: Event handler for project selection change
+        private void CmbProject_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            LoadData();
+        }
+
+        // ✅ NEW: Update stats panel with dynamic data
+        private void UpdateStatsPanel()
+        {
+            pnlStats.Controls.Clear();
+
+            if (_currentStats == null)
+            {
+                _currentStats = GetStatisticsData();
+            }
+
+            var stats = new[]  {
+                new { Label = "TONG SO NGAY LAM", Value = $"{_currentStats.TotalWorkingDays} ngay", SubText = (string?)null, X = 20 },
+                new { Label = "TASK HOAN THANH", Value = $"{_currentStats.CompletedTasks}/{_currentStats.TotalTasks}", SubText = (string?)$"{(_currentStats.TotalTasks > 0 ? (double)_currentStats.CompletedTasks / _currentStats.TotalTasks : 0):F1} / ngay", X = 300 },
+                new { Label = "TONG GIO LAM VIEC", Value = $"{_currentStats.TotalWorkingHours:F1}h", SubText = (string?)$"{(_currentStats.TotalWorkingDays > 0 ? _currentStats.TotalWorkingHours / _currentStats.TotalWorkingDays : 0):F1}h / ngay", X = 590 },
+                new { Label = "THOI GIAN TB/TASK", Value = $"{_currentStats.AverageTimePerTask:F0} phut", SubText = (string?)$"{_currentStats.CompletionRate:F1}% hoan thanh", X = 880 }
+            };
+
+            foreach (var stat in stats)
+            {
+                Panel statBox = new Panel
+                {
+                    Location = new Point(stat.X, 20),
+                    Size = new Size(260, 70),
+                    BackColor = DrawingColor.FromArgb(30, 30, 30)
+                };
+
+                Label lblStat = new Label
+                {
+                    Text = stat.Label,
+                    Location = new Point(10, 10),
+                    Size = new Size(240, 20),
+                    Font = new Font("Arial", 8F, FontStyle.Regular, GraphicsUnit.Point),
+                    ForeColor = DrawingColor.Gray
+                };
+
+                Label lblValue = new Label
+                {
+                    Text = stat.Value,
+                    Location = new Point(10, 30),
+                    Size = new Size(150, 25),
+                    Font = new Font("Arial", 14F, FontStyle.Bold, GraphicsUnit.Point),
+                    ForeColor = DrawingColor.White
+                };
+
+                statBox.Controls.Add(lblStat);
+                statBox.Controls.Add(lblValue);
+
+                if (!string.IsNullOrEmpty(stat.SubText))
+                {
+                    Label lblSub = new Label
+                    {
+                        Text = stat.SubText,
+                        Location = new Point(160, 35),
+                        Size = new Size(90, 20),
+                        Font = new Font("Arial", 7F, FontStyle.Regular, GraphicsUnit.Point),
+                        ForeColor = DrawingColor.Gray,
+                        TextAlign = ContentAlignment.MiddleRight
+                    };
+                    statBox.Controls.Add(lblSub);
+                }
+
+                pnlStats.Controls.Add(statBox);
+            }
+        }
+
         private void BtnExport_Click(object? sender, EventArgs e)
         {
-            // Show export options menu
             ContextMenuStrip exportMenu = new ContextMenuStrip
             {
                 BackColor = DrawingColor.FromArgb(40, 40, 40),
@@ -350,7 +348,6 @@ namespace ToDoList.GUI.Forms
             exportMenu.Show(btnExport, new Point(0, btnExport.Height));
         }
 
-        // ? NEW: Export to PDF
         private void ExportToPDF()
         {
             try
@@ -358,66 +355,58 @@ namespace ToDoList.GUI.Forms
                 SaveFileDialog saveFileDialog = new SaveFileDialog
                 {
                     Filter = "PDF Files|*.pdf",
-                    Title = "Export Báo cáo to PDF",
+                    Title = "Export Bao cao to PDF",
                     FileName = $"BaoCao_ToDoList_{DateTime.Now:yyyyMMdd_HHmmss}.pdf"
                 };
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Get statistics data
-                    var stats = GetStatisticsData();
+                    var stats = _currentStats ?? GetStatisticsData();
 
-                    // Create PDF
                     using (var writer = new PdfWriter(saveFileDialog.FileName))
                     using (var pdf = new PdfDocument(writer))
                     {
                         var document = new Document(pdf);
                         
-                        // Title
-                        var title = new Paragraph("BÁO CÁO THỐNG KÊ - TODOLIST")
+                        var title = new Paragraph("BAO CAO THONG KE - TODOLIST")
                             .SetTextAlignment(TextAlignment.CENTER)
                             .SetFontSize(20)
                             .SetBold()
                             .SetMarginBottom(20);
                         document.Add(title);
 
-                        // Date
-                        var dateInfo = new Paragraph($"Ngày xuất: {DateTime.Now:dd/MM/yyyy HH:mm:ss}")
+                        var dateInfo = new Paragraph($"Ngay xuat: {DateTime.Now:dd/MM/yyyy HH:mm:ss}")
                             .SetTextAlignment(TextAlignment.CENTER)
                             .SetFontSize(10)
                             .SetMarginBottom(30);
                         document.Add(dateInfo);
 
-                        // Statistics Table
                         Table table = new Table(2);
                         table.SetWidth(UnitValue.CreatePercentValue(100));
 
-                        // Header
-                        table.AddHeaderCell(new Cell().Add(new Paragraph("Chữ số").SetBold()));
-                        table.AddHeaderCell(new Cell().Add(new Paragraph("Giá trị").SetBold()));
+                        table.AddHeaderCell(new Cell().Add(new Paragraph("Chu so").SetBold()));
+                        table.AddHeaderCell(new Cell().Add(new Paragraph("Gia tri").SetBold()));
 
-                        // Data rows
-                        table.AddCell("Tổng số ngày làm");
-                        table.AddCell(stats.TotalWorkingDays.ToString() + " ngày");
+                        table.AddCell("Tong so ngay lam");
+                        table.AddCell(stats.TotalWorkingDays.ToString() + " ngay");
 
-                        table.AddCell("Task hoàn thành");
+                        table.AddCell("Task hoan thanh");
                         table.AddCell($"{stats.CompletedTasks}/{stats.TotalTasks}");
 
-                        table.AddCell("Tổng giờ làm việc");
+                        table.AddCell("Tong gio lam viec");
                         table.AddCell(stats.TotalWorkingHours.ToString("F1") + "h");
 
-                        table.AddCell("Thời gian TB/Task");
-                        table.AddCell(stats.AverageTimePerTask.ToString("F0") + " phút");
+                        table.AddCell("Thoi gian TB/Task");
+                        table.AddCell(stats.AverageTimePerTask.ToString("F0") + " phut");
 
-                        table.AddCell("Tỷ lệ hoàn thành");
+                        table.AddCell("Ti le hoan thanh");
                         table.AddCell(stats.CompletionRate.ToString("F1") + "%");
 
                         document.Add(table);
 
-                        // Add task details if available
                         if (stats.TaskDetails != null && stats.TaskDetails.Any())
                         {
-                            document.Add(new Paragraph("\n\nCHI TIẾT TASKS")
+                            document.Add(new Paragraph("\n\nCHI TIET TASKS")
                                 .SetBold()
                                 .SetFontSize(14)
                                 .SetMarginTop(20));
@@ -425,16 +414,16 @@ namespace ToDoList.GUI.Forms
                             Table taskTable = new Table(4);
                             taskTable.SetWidth(UnitValue.CreatePercentValue(100));
 
-                            taskTable.AddHeaderCell("Tên Task");
-                            taskTable.AddHeaderCell("Trạng thái");
-                            taskTable.AddHeaderCell("Dự kiến");
-                            taskTable.AddHeaderCell("ưu tiên");
+                            taskTable.AddHeaderCell("Ten Task");
+                            taskTable.AddHeaderCell("Trang thai");
+                            taskTable.AddHeaderCell("Du kien");
+                            taskTable.AddHeaderCell("Uu tien");
 
                             foreach (var task in stats.TaskDetails)
                             {
                                 taskTable.AddCell(task.Title);
                                 taskTable.AddCell(task.Status);
-                                taskTable.AddCell((task.EstimatedMinutes ?? 0) + " phút");
+                                taskTable.AddCell((task.EstimatedMinutes ?? 0) + " phut");
                                 taskTable.AddCell(task.Priority ?? "Medium");
                             }
 
@@ -444,12 +433,11 @@ namespace ToDoList.GUI.Forms
                         document.Close();
                     }
 
-                    MessageBox.Show($"? Export PDF thành công!\n\nFile: {saveFileDialog.FileName}", 
-                        "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Export PDF thanh cong!\n\nFile: {saveFileDialog.FileName}", 
+                        "Thanh cong", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Ask to open file
-                    var result = MessageBox.Show("Bạn có muốn xuất file PDF không?", 
-                        "Mờ file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    var result = MessageBox.Show("Ban co muon mo file PDF khong?", 
+                        "Mo file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -462,12 +450,11 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"lỗi khi export PDF:\n\n{ex.Message}", 
-                    "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Loi khi export PDF:\n\n{ex.Message}", 
+                    "Loi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // ? NEW: Export to Excel
         private void ExportToExcel()
         {
             try
@@ -475,74 +462,68 @@ namespace ToDoList.GUI.Forms
                 SaveFileDialog saveFileDialog = new SaveFileDialog
                 {
                     Filter = "Excel Files|*.xlsx",
-                    Title = "Export Báo cáo to Excel",
+                    Title = "Export Bao cao to Excel",
                     FileName = $"BaoCao_ToDoList_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
                 };
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var stats = GetStatisticsData();
+                    var stats = _currentStats ?? GetStatisticsData();
 
                     using (var package = new ExcelPackage())
                     {
-                        // Summary Sheet
-                        var summarySheet = package.Workbook.Worksheets.Add("Tổng quan");
+                        var summarySheet = package.Workbook.Worksheets.Add("Tong quan");
 
-                        // Title
-                        summarySheet.Cells["A1"].Value = "BÁO CÁO THỐNG KÊ - TODOLIST";
+                        summarySheet.Cells["A1"].Value = "BAO CAO THONG KE - TODOLIST";
                         summarySheet.Cells["A1:D1"].Merge = true;
                         summarySheet.Cells["A1"].Style.Font.Size = 16;
                         summarySheet.Cells["A1"].Style.Font.Bold = true;
                         summarySheet.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                        // Date
-                        summarySheet.Cells["A2"].Value = $"Ngày xuất: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+                        summarySheet.Cells["A2"].Value = $"Ngay xuat: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
                         summarySheet.Cells["A2:D2"].Merge = true;
                         summarySheet.Cells["A2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                        // Statistics
                         int row = 4;
-                        summarySheet.Cells[row, 1].Value = "Chữ số";
-                        summarySheet.Cells[row, 2].Value = "Giá trị";
+                        summarySheet.Cells[row, 1].Value = "Chu so";
+                        summarySheet.Cells[row, 2].Value = "Gia tri";
                         summarySheet.Cells[row, 1, row, 2].Style.Font.Bold = true;
                         summarySheet.Cells[row, 1, row, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         summarySheet.Cells[row, 1, row, 2].Style.Fill.BackgroundColor.SetColor(DrawingColor.FromArgb(100, 149, 237));
                         summarySheet.Cells[row, 1, row, 2].Style.Font.Color.SetColor(DrawingColor.White);
 
                         row++;
-                        summarySheet.Cells[row, 1].Value = "Tổng số ngày làm";
-                        summarySheet.Cells[row, 2].Value = stats.TotalWorkingDays + " ngày";
+                        summarySheet.Cells[row, 1].Value = "Tong so ngay lam";
+                        summarySheet.Cells[row, 2].Value = stats.TotalWorkingDays + " ngay";
 
                         row++;
-                        summarySheet.Cells[row, 1].Value = "Task hoàn thành";
+                        summarySheet.Cells[row, 1].Value = "Task hoan thanh";
                         summarySheet.Cells[row, 2].Value = $"{stats.CompletedTasks}/{stats.TotalTasks}";
 
                         row++;
-                        summarySheet.Cells[row, 1].Value = "Tổng giờ làm việc";
+                        summarySheet.Cells[row, 1].Value = "Tong gio lam viec";
                         summarySheet.Cells[row, 2].Value = stats.TotalWorkingHours.ToString("F1") + "h";
 
                         row++;
-                        summarySheet.Cells[row, 1].Value = "Thời gian TB/Task";
-                        summarySheet.Cells[row, 2].Value = stats.AverageTimePerTask.ToString("F0") + " phút";
+                        summarySheet.Cells[row, 1].Value = "Thoi gian TB/Task";
+                        summarySheet.Cells[row, 2].Value = stats.AverageTimePerTask.ToString("F0") + " phut";
 
                         row++;
-                        summarySheet.Cells[row, 1].Value = "Tỷ lệ hoàn thành";
+                        summarySheet.Cells[row, 1].Value = "Ti le hoan thanh";
                         summarySheet.Cells[row, 2].Value = stats.CompletionRate.ToString("F1") + "%";
 
                         summarySheet.Columns[1].Width = 30;
                         summarySheet.Columns[2].Width = 20;
 
-                        // Task Details Sheet
                         if (stats.TaskDetails != null && stats.TaskDetails.Any())
                         {
-                            var taskSheet = package.Workbook.Worksheets.Add("Chi tiết Tasks");
+                            var taskSheet = package.Workbook.Worksheets.Add("Chi tiet Tasks");
 
-                            // Headers
-                            taskSheet.Cells[1, 1].Value = "Tên Task";
-                            taskSheet.Cells[1, 2].Value = "Trạng thái";
-                            taskSheet.Cells[1, 3].Value = "Dự kiến (phút)";
-                            taskSheet.Cells[1, 4].Value = "ưu tiên";
-                            taskSheet.Cells[1, 5].Value = "Ngày tạo";
+                            taskSheet.Cells[1, 1].Value = "Ten Task";
+                            taskSheet.Cells[1, 2].Value = "Trang thai";
+                            taskSheet.Cells[1, 3].Value = "Du kien (phut)";
+                            taskSheet.Cells[1, 4].Value = "Uu tien";
+                            taskSheet.Cells[1, 5].Value = "Ngay tao";
                             taskSheet.Cells[1, 6].Value = "Deadline";
 
                             taskSheet.Cells[1, 1, 1, 6].Style.Font.Bold = true;
@@ -550,7 +531,6 @@ namespace ToDoList.GUI.Forms
                             taskSheet.Cells[1, 1, 1, 6].Style.Fill.BackgroundColor.SetColor(DrawingColor.FromArgb(100, 149, 237));
                             taskSheet.Cells[1, 1, 1, 6].Style.Font.Color.SetColor(DrawingColor.White);
 
-                            // Data
                             int taskRow = 2;
                             foreach (var task in stats.TaskDetails)
                             {
@@ -561,7 +541,6 @@ namespace ToDoList.GUI.Forms
                                 taskSheet.Cells[taskRow, 5].Value = task.CreatedAt?.ToString("dd/MM/yyyy");
                                 taskSheet.Cells[taskRow, 6].Value = task.DueDate?.ToString("dd/MM/yyyy") ?? "N/A";
 
-                                // Color code by status
                                 if (task.Status == "Completed")
                                 {
                                     taskSheet.Cells[taskRow, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
@@ -582,12 +561,11 @@ namespace ToDoList.GUI.Forms
                         package.SaveAs(new FileInfo(saveFileDialog.FileName));
                     }
 
-                    MessageBox.Show($" Export Excel thành công!\n\nFile: {saveFileDialog.FileName}", 
-                        "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Export Excel thanh cong!\n\nFile: {saveFileDialog.FileName}", 
+                        "Thanh cong", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Ask to open file
-                    var result = MessageBox.Show("Bạn có muốn xuất file Excel không?", 
-                        "Mờ file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    var result = MessageBox.Show("Ban co muon mo file Excel khong?", 
+                        "Mo file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -600,19 +578,41 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($" Lỗi khi export Excel:\n\n{ex.Message}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Loi khi export Excel:\n\n{ex.Message}", 
+                    "Loi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // ✅ NEW: Get statistics data
+        // ✅ MODIFIED: Get statistics data with filters
         private StatisticsData GetStatisticsData()
         {
             try
             {
-                var tasks = _context.Tasks
-                    .Where(t => t.IsDeleted != true)
-                    .ToList();
+                var query = _context.Tasks
+                    .Where(t => t.IsDeleted != true && t.UserId == _userId);
+
+                // ✅ Filter by selected project
+                if (cmbProject.SelectedIndex > 0) // ✅ FIXED: Added closing parenthesis
+                {
+                    string selectedProject = cmbProject.SelectedItem.ToString() ?? "";
+                    var project = _context.Projects.FirstOrDefault(p => p.ProjectName == selectedProject);
+                    if (project != null)
+                    {
+                        query = query.Where(t => t.ProjectId == project.ProjectId);
+                    }
+                }
+
+                // ✅ Filter by selected month
+                if (cmbMonth.SelectedIndex >= 0)
+                {
+                    int selectedMonth = cmbMonth.SelectedIndex + 1;
+                    int currentYear = DateTime.Now.Year;
+                    query = query.Where(t => t.CreatedAt.HasValue && 
+                                            t.CreatedAt.Value.Month == selectedMonth &&
+                                            t.CreatedAt.Value.Year == currentYear);
+                }
+
+                var tasks = query.ToList();
 
                 var completedTasks = tasks.Count(t => t.Status == "Completed");
                 var totalTasks = tasks.Count;
@@ -624,7 +624,6 @@ namespace ToDoList.GUI.Forms
 
                 var completionRate = totalTasks > 0 ? ((double)completedTasks / totalTasks) * 100 : 0;
 
-                // Get working days (days with tasks)
                 var workingDays = tasks
                     .Where(t => t.CreatedAt.HasValue)
                     .Select(t => t.CreatedAt.Value.Date)
@@ -644,39 +643,74 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi lấy dữ liệu thống kê: {ex.Message}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Loi khi lay du lieu thong ke: {ex.Message}", 
+                    "Loi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return new StatisticsData();
             }
         }
 
+        // ✅ MODIFIED: Paint chart with real data
         private void PnlChart_Paint(object? sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            // Chart data
-            var data = new[] {
-                new { Completed = 1, Total = 4, X = 50 },
-                new { Completed = 2, Total = 6, X = 270 },
-                new { Completed = 0, Total = 4, X = 490 },
-                new { Completed = 0, Total = 1, X = 710 },
-                new { Completed = 0, Total = 2, X = 930 }
-            };
+            if (_currentStats == null || _currentStats.TaskDetails == null || !_currentStats.TaskDetails.Any())
+            {
+                // Show "No data" message
+                string noDataMsg = "Khong co du lieu de hien thi";
+                SizeF textSize = g.MeasureString(noDataMsg, new Font("Arial", 14F));
+                g.DrawString(noDataMsg, new Font("Arial", 14F), Brushes.Gray,
+                    (pnlChart.Width - textSize.Width) / 2, pnlChart.Height / 2);
+                return;
+            }
 
-            int barWidth = 200;
+            // ✅ Get real data grouped by day
+            var tasksByDay = _currentStats.TaskDetails
+                .Where(t => t.CreatedAt.HasValue)
+                .GroupBy(t => t.CreatedAt.Value.Date)
+                .OrderBy(g => g.Key)
+                .Take(7) // Show last 7 days
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Total = g.Count(),
+                    Completed = g.Count(t => t.Status == "Completed")
+                })
+                .ToList();
+
+            if (!tasksByDay.Any())
+            {
+                string noDataMsg = "Khong co du lieu theo ngay";
+                SizeF dateLabelSize = g.MeasureString(noDataMsg, new Font("Arial", 14F));
+                g.DrawString(noDataMsg, new Font("Arial", 14F), Brushes.Gray,
+                    (pnlChart.Width - dateLabelSize.Width) / 2, pnlChart.Height / 2);
+                return;
+            }
+
+            int dataCount = tasksByDay.Count;
+            int spacing = Math.Min(1100 / dataCount, 200);
+            int barWidth = Math.Min(spacing - 20, 180);
             int maxHeight = 280;
             int baseY = 380;
+            int startX = 50;
 
-            // Draw bars
-            for (int i = 0; i < data.Length; i++)
+            int maxTotal = tasksByDay.Max(d => d.Total);
+            if (maxTotal == 0) maxTotal = 1;
+
+            // Draw bars and collect points for line chart
+            var linePoints = new List<PointF>();
+
+            for (int i = 0; i < tasksByDay.Count; i++)
             {
-                var d = data[i];
-                int totalHeight = (int)(maxHeight * (d.Total / 6.0)); // Max total is 6
-                int completedHeight = (int)(maxHeight * (d.Completed / 6.0));
+                var day = tasksByDay[i];
+                int x = startX + (i * spacing);
+                
+                int totalHeight = (int)(maxHeight * ((double)day.Total / maxTotal));
+                int completedHeight = (int)(maxHeight * ((double)day.Completed / maxTotal));
 
                 // Gray bar (total)
-                Rectangle rectTotal = new Rectangle(d.X, baseY - totalHeight, barWidth, totalHeight);
+                Rectangle rectTotal = new Rectangle(x, baseY - totalHeight, barWidth, totalHeight);
                 using (SolidBrush brush = new SolidBrush(DrawingColor.FromArgb(80, 80, 80)))
                 {
                     g.FillRectangle(brush, rectTotal);
@@ -685,7 +719,7 @@ namespace ToDoList.GUI.Forms
                 // Green bar (completed)
                 if (completedHeight > 0)
                 {
-                    Rectangle rectCompleted = new Rectangle(d.X, baseY - completedHeight, barWidth, completedHeight);
+                    Rectangle rectCompleted = new Rectangle(x, baseY - completedHeight, barWidth, completedHeight);
                     using (SolidBrush brush = new SolidBrush(DrawingColor.FromArgb(100, 200, 150)))
                     {
                         g.FillRectangle(brush, rectCompleted);
@@ -693,31 +727,34 @@ namespace ToDoList.GUI.Forms
                 }
 
                 // Label above bar
-                string label = $"{d.Completed}/{d.Total}";
-                SizeF textSize = g.MeasureString(label, new Font("Segoe UI", 10F));
-                g.DrawString(label, new Font("Segoe UI", 10F), Brushes.White,
-                    d.X + barWidth / 2 - textSize.Width / 2, baseY - totalHeight - 25);
+                string label = $"{day.Completed}/{day.Total}";
+                SizeF textSize = g.MeasureString(label, new Font("Arial", 10F));
+                g.DrawString(label, new Font("Arial", 10F), Brushes.White,
+                    x + barWidth / 2 - textSize.Width / 2, baseY - totalHeight - 25);
+
+                // Date label below
+                string dateLabel = day.Date.ToString("dd/MM");
+                SizeF dateLabelSize = g.MeasureString(dateLabel, new Font("Arial", 8F));
+                g.DrawString(dateLabel, new Font("Arial", 8F), Brushes.Gray,
+                    x + barWidth / 2 - dateLabelSize.Width / 2, baseY + 10);
+
+                // Add point for line chart
+                linePoints.Add(new PointF(x + barWidth / 2, baseY - completedHeight));
             }
 
             // Draw line chart
-            using (Pen pen = new Pen(DrawingColor.FromArgb(100, 149, 237), 3))
+            if (linePoints.Count > 1)
             {
-                PointF[] points = new PointF[]
+                using (Pen pen = new Pen(DrawingColor.FromArgb(100, 149, 237), 3))
                 {
-                    new PointF(150, baseY - 200),  // 1/4
-                    new PointF(370, baseY - 240),  // 2/6
-                    new PointF(590, baseY - 80),   // 0/4
-                    new PointF(810, baseY - 40),   // 0/1
-                    new PointF(1030, baseY - 20)   // 0/2
-                };
+                    g.DrawLines(pen, linePoints.ToArray());
 
-                g.DrawLines(pen, points);
-
-                // Draw points
-                foreach (var point in points)
-                {
-                    g.FillEllipse(new SolidBrush(DrawingColor.FromArgb(100, 149, 237)), 
-                        point.X - 4, point.Y - 4, 8, 8);
+                    // Draw points
+                    foreach (var point in linePoints)
+                    {
+                        g.FillEllipse(new SolidBrush(DrawingColor.FromArgb(100, 149, 237)), 
+                            point.X - 4, point.Y - 4, 8, 8);
+                    }
                 }
             }
         }
@@ -725,11 +762,11 @@ namespace ToDoList.GUI.Forms
         private void LoadFilters()
         {
             // Projects
-            cmbProject.Items.Add("Tất cả dự án");
+            cmbProject.Items.Add("Tat ca du an");
             try
             {
                 var projects = _context.Projects
-                    .Where(p => p.IsArchived != true)
+                    .Where(p => p.IsArchived != true && p.UserId == _userId)
                     .Select(p => p.ProjectName)
                     .ToList();
                 foreach (var p in projects)
@@ -748,13 +785,23 @@ namespace ToDoList.GUI.Forms
             cmbDay.Items.AddRange(new[] { "Monday", "Tuesday", "Wednesday", "Thursday",
                 "Friday", "Saturday", "Sunday", "All days", "Weekdays", "Weekends"
                });
-            cmbDay.SelectedIndex = 9; // October
+            cmbDay.SelectedIndex = 7; // All days
         }
 
+        // ✅ MODIFIED: Load data and update UI
         private void LoadData()
         {
-            // Refresh chart
-            pnlChart.Invalidate();
+            try
+            {
+                _currentStats = GetStatisticsData();
+                UpdateStatsPanel();
+                pnlChart.Invalidate(); // Redraw chart
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Loi khi tai du lieu: {ex.Message}", 
+                    "Loi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -767,7 +814,6 @@ namespace ToDoList.GUI.Forms
         }
     }
 
-    // ✅ NEW: Statistics data class
     public class StatisticsData
     {
         public int TotalWorkingDays { get; set; }
