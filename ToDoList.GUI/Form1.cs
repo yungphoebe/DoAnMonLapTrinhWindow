@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TodoListApp.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using ToDoList.GUI.Helpers;
+using System.IO;
 
 namespace ToDoList.GUI
 {
@@ -25,8 +26,8 @@ namespace ToDoList.GUI
             // ✨ Add Search button click handler
             btnSearch.Click += BtnSearch_Click;
             
-            // Add test button (for development only)
-            AddTestButton();
+            // ✨ NEW: Add Bottom Navigation Panel
+            CreateBottomNavigationPanel();
         }
 
         // ✨ NEW: Search button click handler
@@ -59,99 +60,6 @@ namespace ToDoList.GUI
                 return "buổi chiều";
             else
                 return "buổi tối";
-        }
-
-        private void AddTestButton()
-        {
-            Button btnTest = new Button
-            {
-                Text = "Test",
-                Location = new Point(10, 10),
-                Size = new Size(60, 30),
-                BackColor = Color.FromArgb(100, 200, 150),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.Black
-            };
-            btnTest.FlatAppearance.BorderSize = 0;
-            btnTest.Click += BtnTest_Click;
-            
-            Button btnTestDB = new Button
-            {
-                Text = "Test DB",
-                Location = new Point(80, 10),
-                Size = new Size(70, 30),
-                BackColor = Color.FromArgb(200, 100, 100),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.White
-            };
-            btnTestDB.FlatAppearance.BorderSize = 0;
-            btnTestDB.Click += BtnTestDB_Click;
-            
-            Button btnTestData = new Button
-            {
-                Text = "Test Data",
-                Location = new Point(160, 10),
-                Size = new Size(80, 30),
-                BackColor = Color.FromArgb(100, 100, 200),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.White
-            };
-            btnTestData.FlatAppearance.BorderSize = 0;
-            btnTestData.Click += BtnTestData_Click;
-            
-            Button btnReports = new Button
-            {
-                Text = "📊 Báo cáo",
-                Location = new Point(250, 10),
-                Size = new Size(90, 30),
-                BackColor = Color.FromArgb(100, 149, 237),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
-            };
-            btnReports.FlatAppearance.BorderSize = 0;
-            btnReports.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
-            btnReports.Click += BtnReports_Click;
-            
-            // ✨ NEW: Add Task button
-            Button btnAddTask = new Button
-            {
-                Text = "➕ Add Task",
-                Location = new Point(350, 10),
-                Size = new Size(100, 30),
-                BackColor = Color.FromArgb(80, 200, 120),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
-            };
-            btnAddTask.FlatAppearance.BorderSize = 0;
-            btnAddTask.FlatAppearance.MouseOverBackColor = Color.FromArgb(100, 220, 140);
-            btnAddTask.Click += BtnAddTask_Click;
-            
-            // ⚙️ NEW: Settings button
-            Button btnSettings = new Button
-            {
-                Text = "⚙️ Settings",
-                Location = new Point(460, 10),
-                Size = new Size(100, 30),
-                BackColor = Color.FromArgb(127, 140, 141),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
-            };
-            btnSettings.FlatAppearance.BorderSize = 0;
-            btnSettings.FlatAppearance.MouseOverBackColor = Color.FromArgb(147, 160, 161);
-            btnSettings.Click += BtnSettings_Click;
-            
-            this.Controls.Add(btnTest);
-            this.Controls.Add(btnTestDB);
-            this.Controls.Add(btnTestData);
-            this.Controls.Add(btnReports);
-            this.Controls.Add(btnAddTask);
-            this.Controls.Add(btnSettings);
-            
-            // ✨ NEW: Add Bottom Navigation Panel
-            CreateBottomNavigationPanel();
         }
 
         // ✨ NEW: Create Bottom Navigation Panel
@@ -193,7 +101,7 @@ namespace ToDoList.GUI
             };
             btnBottomReports.FlatAppearance.BorderSize = 0;
             btnBottomReports.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
-            btnBottomReports.Click += BtnReports_Click; // ✨ USE EXISTING EVENT HANDLER
+            btnBottomReports.Click += BtnReports_Click; // ✨ USE EVENT HANDLER
 
             // ⚙️ Settings button in bottom nav
             Button btnBottomSettings = new Button
@@ -219,18 +127,6 @@ namespace ToDoList.GUI
             pnlBottomNav.BringToFront();
         }
 
-        // ✨ NEW: Add Task button click handler
-        private void BtnAddTask_Click(object? sender, EventArgs e)
-        {
-            using (var addTaskForm = new Forms.AddTaskToListForm())
-            {
-                if (addTaskForm.ShowDialog() == DialogResult.OK)
-                {
-                    LoadProjectsFromDatabase();
-                }
-            }
-        }
-
         // ⚙️ NEW: Settings button click handler
         private void BtnSettings_Click(object? sender, EventArgs e)
         {
@@ -250,50 +146,6 @@ namespace ToDoList.GUI
             {
                 MessageBox.Show($"Lỗi khi mở cài đặt: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void BtnTest_Click(object? sender, EventArgs e)
-        {
-            using (var testForm = new Tests.ProjectManagementTestForm())
-            {
-                testForm.ShowDialog();
-            }
-        }
-
-        private void BtnTestDB_Click(object? sender, EventArgs e)
-        {
-            Tests.SimpleDatabaseTest.TestDatabaseConnection();
-        }
-
-        private void BtnTestData_Click(object? sender, EventArgs e)
-        {
-            Tests.DatabaseConnectionTest.TestConnectionAndCreateSampleData();
-            LoadProjectsFromDatabase();
-
-            if (_context == null)
-            {
-                MessageBox.Show("Không thể truy cập dữ liệu vì database chưa được khởi tạo.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            try
-            {
-                var totalProjects = _context.Projects.Count(p => p.IsArchived != true);
-                var totalTasks = _context.Tasks.Count(t => t.IsDeleted != true);
-                var completedTasks = _context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Completed");
-
-                MessageBox.Show($"Dữ liệu hiện tại:\n" +
-                    $"- Projects: {totalProjects}\n" +
-                    $"- Tasks: {totalTasks}\n" +
-                    $"- Completed: {completedTasks}\n" +
-                    $"- In Progress: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "In Progress")}\n" +
-                    $"- Pending: {_context.Tasks.Count(t => t.IsDeleted != true && t.Status == "Pending")}", 
-                    "Thông tin dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi kiểm tra dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -611,7 +463,7 @@ namespace ToDoList.GUI
             Panel listCard = new Panel
             {
                 Width = 320,
-                Height = 450, // ✅ FIXED: Changed from 480 to 450 to avoid validation error
+                Height = 450,
                 BackColor = Color.FromArgb(35, 35, 35),
                 BorderStyle = BorderStyle.None,
                 Margin = new Padding(12),
@@ -781,7 +633,7 @@ namespace ToDoList.GUI
             Label lblPendingTasks = new Label
             {
                 Text = $"{pendingTasks} công việc đang chờ",
-                Location = new Point(20, 310), // ✅ ADJUSTED: From 340 to 310
+                Location = new Point(20, 310),
                 Size = new Size(160, 20),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 Font = new Font("Segoe UI", 9F),
@@ -791,7 +643,7 @@ namespace ToDoList.GUI
             Label lblEstTime = new Label
             {
                 Text = $"Dự kiến: {estimatedMinutes}ph",
-                Location = new Point(200, 310), // ✅ ADJUSTED: From 340 to 310
+                Location = new Point(200, 310),
                 Size = new Size(100, 20),
                 ForeColor = Color.FromArgb(150, 150, 150),
                 Font = new Font("Segoe UI", 9F),
@@ -803,7 +655,7 @@ namespace ToDoList.GUI
             Button btnCuculist = new Button
             {
                 Text = "Cuculist Now",
-                Location = new Point(60, 350), // ✅ ADJUSTED: From 380 to 350
+                Location = new Point(60, 350),
                 Size = new Size(200, 45),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(100, 149, 237),
@@ -826,149 +678,6 @@ namespace ToDoList.GUI
             listCard.Controls.Add(lblPendingTasks);
             listCard.Controls.Add(lblEstTime);
             listCard.Controls.Add(btnCuculist);
-
-            // Don't add click event to card itself to avoid conflict with button
-            // listCard.Click += (s, e) => OpenProjectDetails(project);
-
-            pnlListsContainer.Controls.Add(listCard);
-        }
-
-        private void LoadSampleData()
-        {
-            // Xóa tất cả controls hiện có
-            pnlListsContainer.Controls.Clear();
-
-            // Luôn thêm card tạo danh sách mới ở cuối
-            AddCreateListCard();
-        }
-
-        private void AddListCard(string listName, int pendingTasks, int estimatedMinutes, List<(string name, string time)> tasks)
-        {
-            Panel listCard = new Panel
-            {
-                Width = 310,
-                Height = 420,
-                BackColor = Color.FromArgb(30, 30, 30),
-                BorderStyle = BorderStyle.FixedSingle,
-                Margin = new Padding(10)
-            };
-
-            // Icon với background màu vàng
-            Panel iconBg = new Panel
-            {
-                Location = new Point(15, 15),
-                Size = new Size(30, 30),
-                BackColor = Color.FromArgb(200, 180, 50)
-            };
-
-            Label lblIcon = new Label
-            {
-                Text = "T",
-                Location = new Point(0, 0),
-                Size = new Size(30, 30),
-                ForeColor = Color.Black,
-                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-            iconBg.Controls.Add(lblIcon);
-
-            // Tên list
-            Label lblName = new Label
-            {
-                Text = listName,
-                Location = new Point(55, 18),
-                Size = new Size(200, 25),
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 12F, FontStyle.Bold)
-            };
-
-            // Button menu
-            Button btnMenu = new Button
-            {
-                Text = "⋮",
-                Location = new Point(270, 15),
-                Size = new Size(25, 25),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.Gray,
-                Font = new Font("Segoe UI", 16F)
-            };
-            btnMenu.FlatAppearance.BorderSize = 0;
-
-            listCard.Controls.Add(iconBg);
-            listCard.Controls.Add(lblName);
-            listCard.Controls.Add(btnMenu);
-
-            // Các task items
-            int taskY = 60;
-            int taskIndex = 1;
-            foreach (var task in tasks)
-            {
-                Panel taskPanel = new Panel
-                {
-                    Location = new Point(15, taskY),
-                    Size = new Size(280, 50),
-                    BackColor = Color.FromArgb(40, 40, 40)
-                };
-
-                Label lblTaskNumber = new Label
-                {
-                    Text = taskIndex.ToString(),
-                    Location = new Point(10, 15),
-                    Size = new Size(20, 20),
-                    ForeColor = Color.Gray,
-                    Font = new Font("Segoe UI", 9F)
-                };
-
-                Label lblTaskName = new Label
-                {
-                    Text = task.name,
-                    Location = new Point(40, 15),
-                    Size = new Size(150, 20),
-                    ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 10F)
-                };
-
-                Label lblTaskTime = new Label
-                {
-                    Text = task.time,
-                    Location = new Point(220, 15),
-                    Size = new Size(50, 20),
-                    ForeColor = Color.Gray,
-                    Font = new Font("Segoe UI", 9F),
-                    TextAlign = ContentAlignment.MiddleRight
-                };
-
-                taskPanel.Controls.Add(lblTaskNumber);
-                taskPanel.Controls.Add(lblTaskName);
-                taskPanel.Controls.Add(lblTaskTime);
-                listCard.Controls.Add(taskPanel);
-
-                taskY += 60;
-                taskIndex++;
-            }
-
-            // Footer info
-            Label lblPendingTasks = new Label
-            {
-                Text = $"{pendingTasks} công việc đang chờ",
-                Location = new Point(15, 380),
-                Size = new Size(150, 20),
-                ForeColor = Color.Gray,
-                Font = new Font("Segoe UI", 8F)
-            };
-
-            Label lblEstTime = new Label
-            {
-                Text = $"Dự kiến: {estimatedMinutes}phút",
-                Location = new Point(200, 380),
-                Size = new Size(95, 20),
-                ForeColor = Color.Gray,
-                Font = new Font("Segoe UI", 8F),
-                TextAlign = ContentAlignment.MiddleRight
-            };
-
-            listCard.Controls.Add(lblPendingTasks);
-            listCard.Controls.Add(lblEstTime);
 
             pnlListsContainer.Controls.Add(listCard);
         }
@@ -1115,7 +824,7 @@ namespace ToDoList.GUI
             
             var deleteItem = menu.Items.Add("🗑️ Xóa", null, (s, e) => DeleteProject(project));
             
-            // Style cho menu items - Fix casting error
+            // Style cho menu items
             foreach (ToolStripItem item in menu.Items)
             {
                 if (item is ToolStripMenuItem menuItem)
@@ -1149,9 +858,21 @@ namespace ToDoList.GUI
 
         private void EditProject(Project project)
         {
-            // TODO: Implement edit project form
-            MessageBox.Show($"Chỉnh sửa project: {project.ProjectName}", "Thông báo", 
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+                using (var editForm = new Forms.EditProjectForm(project))
+                {
+                    if (editForm.ShowDialog() == DialogResult.OK)
+                    {
+                        LoadProjectsFromDatabase();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi chỉnh sửa project: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async void ArchiveProject(Project project)
@@ -1165,7 +886,7 @@ namespace ToDoList.GUI
                 {
                     project.IsArchived = true;
                     await _context.SaveChangesAsync();
-                    LoadProjectsFromDatabase(); // Reload to hide archived project
+                    LoadProjectsFromDatabase();
                     
                     MessageBox.Show("Project đã được lưu trữ thành công!", "Thành công", 
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1189,18 +910,15 @@ namespace ToDoList.GUI
                 
                 if (result == DialogResult.Yes)
                 {
-                    // Xóa tất cả tasks trong project trước
                     var tasks = await _context.Tasks
                         .Where(t => t.ProjectId == project.ProjectId)
                         .ToListAsync();
                     
                     _context.Tasks.RemoveRange(tasks);
-                    
-                    // Xóa project
                     _context.Projects.Remove(project);
                     await _context.SaveChangesAsync();
                     
-                    LoadProjectsFromDatabase(); // Reload to remove deleted project
+                    LoadProjectsFromDatabase();
                     
                     MessageBox.Show($"Project '{project.ProjectName}' và {tasks.Count} task(s) đã được xóa vĩnh viễn!", "Đã xóa", 
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1218,7 +936,6 @@ namespace ToDoList.GUI
             using (var projectDetailsForm = new Forms.ProjectDetailsForm(project))
             {
                 projectDetailsForm.ShowDialog();
-                // Reload projects after closing details form
                 LoadProjectsFromDatabase();
             }
         }

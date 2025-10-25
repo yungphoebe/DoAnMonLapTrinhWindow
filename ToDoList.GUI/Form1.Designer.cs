@@ -26,16 +26,11 @@
             pnlListHeader = new Panel();
             lblYourLists = new Label();
             lblListsSubtitle = new Label();
-            pnlBottom = new Panel();
-            btnAddNewTask = new Button();
-            btnReports = new Button();
-            btnHome = new Button();
             lblPlan = new Label();
             pnlSidebar.SuspendLayout();
             pnlTop.SuspendLayout();
             pnlMain.SuspendLayout();
             pnlListHeader.SuspendLayout();
-            pnlBottom.SuspendLayout();
             SuspendLayout();
             // 
             // pnlSidebar
@@ -196,7 +191,7 @@
             pnlMain.Margin = new Padding(3, 4, 3, 4);
             pnlMain.Name = "pnlMain";
             pnlMain.Padding = new Padding(30, 0, 30, 0);
-            pnlMain.Size = new Size(1080, 812);
+            pnlMain.Size = new Size(1080, 900);
             pnlMain.TabIndex = 2;
             // 
             // pnlListsContainer
@@ -207,7 +202,7 @@
             pnlListsContainer.Margin = new Padding(3, 4, 3, 4);
             pnlListsContainer.Name = "pnlListsContainer";
             pnlListsContainer.Padding = new Padding(0, 10, 0, 10);
-            pnlListsContainer.Size = new Size(1020, 712);
+            pnlListsContainer.Size = new Size(1020, 800);
             pnlListsContainer.TabIndex = 2;
             // 
             // pnlListHeader
@@ -243,65 +238,6 @@
             lblListsSubtitle.Text = "Danh sách có các công việc sắp tới của bạn";
             lblListsSubtitle.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // pnlBottom
-            // 
-            pnlBottom.BackColor = Color.FromArgb(24, 24, 24);
-            pnlBottom.Controls.Add(btnAddNewTask);
-            pnlBottom.Controls.Add(btnReports);
-            pnlBottom.Controls.Add(btnHome);
-            pnlBottom.Dock = DockStyle.Bottom;
-            pnlBottom.Location = new Point(320, 937);
-            pnlBottom.Margin = new Padding(3, 4, 3, 4);
-            pnlBottom.Name = "pnlBottom";
-            pnlBottom.Size = new Size(1080, 88);
-            pnlBottom.TabIndex = 3;
-            // 
-            // btnAddNewTask
-            // 
-            btnAddNewTask.Anchor = AnchorStyles.Bottom;
-            btnAddNewTask.BackColor = Color.FromArgb(100, 200, 150);
-            btnAddNewTask.FlatAppearance.BorderSize = 0;
-            btnAddNewTask.FlatStyle = FlatStyle.Flat;
-            btnAddNewTask.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnAddNewTask.ForeColor = Color.Black;
-            btnAddNewTask.Location = new Point(440, 12);
-            btnAddNewTask.Margin = new Padding(3, 4, 3, 4);
-            btnAddNewTask.Name = "btnAddNewTask";
-            btnAddNewTask.Size = new Size(200, 62);
-            btnAddNewTask.TabIndex = 2;
-            btnAddNewTask.Text = "Thêm công việc mới";
-            btnAddNewTask.UseVisualStyleBackColor = false;
-            // 
-            // btnReports
-            // 
-            btnReports.FlatAppearance.BorderSize = 0;
-            btnReports.FlatStyle = FlatStyle.Flat;
-            btnReports.Font = new Font("Segoe UI", 10F);
-            btnReports.ForeColor = Color.Gray;
-            btnReports.Location = new Point(107, 12);
-            btnReports.Margin = new Padding(3, 4, 3, 4);
-            btnReports.Name = "btnReports";
-            btnReports.Size = new Size(141, 50);
-            btnReports.TabIndex = 1;
-            btnReports.Text = "📊 Báo cáo";
-            btnReports.TextAlign = ContentAlignment.MiddleLeft;
-            btnReports.UseVisualStyleBackColor = true;
-            // 
-            // btnHome
-            // 
-            btnHome.FlatAppearance.BorderSize = 0;
-            btnHome.FlatStyle = FlatStyle.Flat;
-            btnHome.Font = new Font("Segoe UI", 10F);
-            btnHome.ForeColor = Color.White;
-            btnHome.Location = new Point(20, 19);
-            btnHome.Margin = new Padding(3, 4, 3, 4);
-            btnHome.Name = "btnHome";
-            btnHome.Size = new Size(100, 50);
-            btnHome.TabIndex = 0;
-            btnHome.Text = "🏠 Trang chủ";
-            btnHome.TextAlign = ContentAlignment.MiddleLeft;
-            btnHome.UseVisualStyleBackColor = true;
-            // 
             // lblPlan
             // 
             lblPlan.Location = new Point(0, 0);
@@ -316,7 +252,6 @@
             BackColor = Color.FromArgb(18, 18, 18);
             ClientSize = new Size(1400, 1025);
             Controls.Add(pnlMain);
-            Controls.Add(pnlBottom);
             Controls.Add(pnlTop);
             Controls.Add(pnlSidebar);
             Margin = new Padding(3, 4, 3, 4);
@@ -331,7 +266,6 @@
             pnlMain.ResumeLayout(false);
             pnlListHeader.ResumeLayout(false);
             pnlListHeader.PerformLayout();
-            pnlBottom.ResumeLayout(false);
             ResumeLayout(false);
         }
 

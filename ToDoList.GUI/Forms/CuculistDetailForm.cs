@@ -471,7 +471,7 @@ namespace ToDoList.GUI.Forms
 
         private void BtnDoneForDay_Click(object? sender, EventArgs e)
         {
-            var result = MessageBox.Show("Hoàn thành công việc trong ngày?", "Xác nh?n",
+            var result = MessageBox.Show("Hoàn thành công việ   c trong ngày?", "Xác nh?n",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)

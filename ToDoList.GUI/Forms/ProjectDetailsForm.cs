@@ -102,7 +102,7 @@ namespace ToDoList.GUI.Forms
         {
             Panel taskCard = new Panel
             {
-                Width = 750,  // Tăng width để chứa nút mới
+                Width = 700,  // Giảm width vì bớt 1 nút
                 Height = 60,
                 BackColor = Color.FromArgb(40, 40, 40),
                 BorderStyle = BorderStyle.FixedSingle,
@@ -166,32 +166,11 @@ namespace ToDoList.GUI.Forms
                 TextAlign = ContentAlignment.MiddleRight
             };
 
-            // ✨ NÚT XEM BÁO CÁO - MỚI
-            Button btnReport = new Button
-            {
-                Text = "📊",
-                Location = new Point(590, 15),
-                Size = new Size(35, 30),
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.White,
-                BackColor = Color.FromArgb(100, 149, 237),
-                Font = new Font("Segoe UI", 14F),
-                Cursor = Cursors.Hand,
-                TabStop = false
-            };
-            btnReport.FlatAppearance.BorderSize = 0;
-            btnReport.FlatAppearance.MouseOverBackColor = Color.FromArgb(120, 169, 255);
-            btnReport.Click += (s, e) => ShowTaskReport(task);
-            
-            // Tooltip cho nút báo cáo
-            ToolTip toolTip = new ToolTip();
-            toolTip.SetToolTip(btnReport, "Xem báo cáo chi tiết task");
-
-            // ✏️ NÚT CHỈNH SỬA - MỚI
+            // ✏️ NÚT CHỈNH SỬA
             Button btnEdit = new Button
             {
                 Text = "✏️",
-                Location = new Point(635, 15),
+                Location = new Point(590, 15),  // Di chuyển từ 635 về 590
                 Size = new Size(35, 30),
                 FlatStyle = FlatStyle.Flat,
                 ForeColor = Color.White,
@@ -203,13 +182,15 @@ namespace ToDoList.GUI.Forms
             btnEdit.FlatAppearance.BorderSize = 0;
             btnEdit.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 185, 50);
             btnEdit.Click += (s, e) => EditTask(task);
+            
+            ToolTip toolTip = new ToolTip();
             toolTip.SetToolTip(btnEdit, "Chỉnh sửa task");
 
-            // Menu button (giữ lại cho các tùy chọn khác)
+            // Menu button
             Button btnMenu = new Button
             {
                 Text = "⋮",
-                Location = new Point(680, 15),
+                Location = new Point(635, 15),  // Di chuyển từ 680 về 635
                 Size = new Size(25, 25),
                 FlatStyle = FlatStyle.Flat,
                 ForeColor = Color.Gray,
@@ -227,8 +208,7 @@ namespace ToDoList.GUI.Forms
             taskCard.Controls.Add(lblPriority);
             taskCard.Controls.Add(lblStatus);
             taskCard.Controls.Add(lblDueDate);
-            taskCard.Controls.Add(btnReport);  // ✨ THÊM
-            taskCard.Controls.Add(btnEdit);    // ✨ THÊM
+            taskCard.Controls.Add(btnEdit);
             taskCard.Controls.Add(btnMenu);
 
             pnlTasksContainer.Controls.Add(taskCard);
@@ -302,27 +282,24 @@ namespace ToDoList.GUI.Forms
             menu.Show(btnMenu, new Point(0, btnMenu.Height));
         }
 
-        private void ShowTaskReport(TaskModel task)
+        private void EditTask(TaskModel task)
         {
             try
             {
-                using (var reportForm = new TaskReportForm(_context, task, _userId))
+                using (var editForm = new EditTaskForm(task))
                 {
-                    reportForm.ShowDialog();
+                    if (editForm.ShowDialog() == DialogResult.OK)
+                    {
+                        // Reload tasks after editing
+                        LoadTasks();
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi mở báo cáo: {ex.Message}", "Lỗi",
+                MessageBox.Show($"Lỗi khi chỉnh sửa task: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void EditTask(TaskModel task)
-        {
-            // TODO: Implement edit task form
-            MessageBox.Show($"Chỉnh sửa task: {task.Title}", "Thông báo",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private async void DeleteTask(TaskModel task)

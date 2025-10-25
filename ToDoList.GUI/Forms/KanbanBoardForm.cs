@@ -114,7 +114,7 @@ namespace ToDoList.GUI.Forms
             {
                 Location = new Point(1250, 20),
                 Size = new Size(120, 40),
-                Text = "? Settings",
+                Text = "Settings",
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.White,
                 BackColor = Color.FromArgb(60, 60, 62),

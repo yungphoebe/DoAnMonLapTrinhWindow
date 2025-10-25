@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -34,7 +34,7 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"L?i k?t n?i database: {ex.Message}", "L?i", 
+                MessageBox.Show($"L·ªói k·∫øt n·ªëi v·ªõi database: {ex.Message}", "L·ªói", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -301,7 +301,7 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"L?i khi t?i danh s·ch: {ex.Message}", "L?i", 
+                MessageBox.Show($"L?i khi t?i danh s√°ch: {ex.Message}", "L?i", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -313,7 +313,7 @@ namespace ToDoList.GUI.Forms
                 // Validate input
                 if (string.IsNullOrWhiteSpace(txtTitle.Text) || txtTitle.Text == "Enter task title*")
                 {
-                    MessageBox.Show("Vui lÚng nh?p tiÍu ?? cÙng vi?c!", "ThÙng b·o", 
+                    MessageBox.Show("Vui l√≤ng nh?p ti√™u ?? c√¥ng vi?c!", "Th√¥ng b√°o", 
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     txtTitle.Focus();
                     return;
@@ -321,7 +321,7 @@ namespace ToDoList.GUI.Forms
 
                 if (cmbProjects.SelectedItem == null)
                 {
-                    MessageBox.Show("Vui lÚng ch?n danh s·ch!", "ThÙng b·o", 
+                    MessageBox.Show("Vui l√≤ng ch?n danh s√°ch!", "Th√¥ng b√°o", 
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -329,7 +329,7 @@ namespace ToDoList.GUI.Forms
                 var selectedItem = cmbProjects.SelectedItem as ComboBoxItem;
                 if (selectedItem == null || selectedItem.Value == -1)
                 {
-                    MessageBox.Show("Vui lÚng ch?n danh s·ch h?p l?!", "ThÙng b·o", 
+                    MessageBox.Show("Vui l√≤ng ch?n danh s√°ch h?p l?!", "Th√¥ng b√°o", 
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -354,7 +354,7 @@ namespace ToDoList.GUI.Forms
                 _context.Tasks.Add(task);
                 await _context.SaveChangesAsync();
 
-                MessageBox.Show("ThÍm cÙng vi?c th‡nh cÙng!", "Th‡nh cÙng", 
+                MessageBox.Show("Th√™m c√¥ng vi?c th√†nh c√¥ng!", "Th√†nh c√¥ng", 
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 // Close form with success
@@ -363,7 +363,7 @@ namespace ToDoList.GUI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"L?i khi thÍm cÙng vi?c: {ex.Message}", "L?i", 
+                MessageBox.Show($"L?i khi th√™m c√¥ng vi?c: {ex.Message}", "L?i", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
